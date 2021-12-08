@@ -22,6 +22,7 @@ services:
       DB_DATABASE: postgres
       DB_HOST: postgres
       DB_PORT: 5433
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
     volumes:
       - ./:/app
     command:
