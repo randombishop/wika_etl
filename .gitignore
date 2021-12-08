@@ -1,0 +1,11 @@
+# Mac files
+.DS_Store
+
+# exclude PyCharm metadata
+.idea
+
+# exlude tmp dir
+/tmp
+
+# exclude docker-compose.yaml
+docker-compose.yaml
