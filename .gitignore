@@ -7,5 +7,6 @@
 # exlude tmp dir
 /tmp
 
-# excluse postgres data
+# excluse databases
 /subql_wika/.data/postgres
+/subql_wika/.data/neo4j
