@@ -4,7 +4,7 @@ import {Balance} from "@polkadot/types/interfaces";
 
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
-    logger.info('handleBlock'+block)
+    logger.debug('handleBlock'+block)
     const blockId = block.block.header.hash.toString();
     const blockNum = block.block.header.number.toNumber();
     let record = new BlockInfo(blockId);
@@ -22,11 +22,11 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         const user = eventData[0].toString() ;
         const url = eventData[1].toHuman().toString() ;
         const numLikes = Number(eventData[2]) ;
-        logger.info('LikeEvent id: '+eventId) ;
-        logger.info('LikeEvent block: '+blockId) ;
-        logger.info('LikeEvent user: '+user) ;
-        logger.info('LikeEvent url: '+url) ;
-        logger.info('LikeEvent numLikes: '+numLikes) ;
+        logger.debug('LikeEvent id: '+eventId) ;
+        logger.debug('LikeEvent block: '+blockId) ;
+        logger.debug('LikeEvent user: '+user) ;
+        logger.debug('LikeEvent url: '+url) ;
+        logger.debug('LikeEvent numLikes: '+numLikes) ;
         let record = new LikeEvent(eventId);
         record.blockId = blockId ;
         record.url = url ;

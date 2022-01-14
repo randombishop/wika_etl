@@ -17,12 +17,22 @@ services:
       - "postgres"
     restart: always
     environment:
-      DB_USER: postgres
-      DB_PASS: postgres
+      NODE_TLS_REJECT_UNAUTHORIZED: 0
       DB_DATABASE: postgres
       DB_HOST: postgres
       DB_PORT: 5433
-      NODE_TLS_REJECT_UNAUTHORIZED: 0
+      DB_USER: postgres
+      DB_PASS: postgres
+      NEO4J_USE: 0
+      NEO4J_HOST: neo4j
+      NEO4J_PORT: 5433
+      NEO4j_USER: neo4j
+      NEO4j_PASS: neo4j
+      ES_USE: 0
+      ES_HOST: elsaticsearch
+      ES_PORT: 1234
+      ES_USER: es
+      ES_PASS: es
     volumes:
       - ./:/app
     command:

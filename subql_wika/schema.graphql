@@ -13,9 +13,9 @@ type LikeEvent @entity {
 
   blockId: String!
 
-  url: String!
+  url: String! @index(unique: false)
 
-  user: String!
+  user: String! @index(unique: false)
 
   numLikes: Int!
 
