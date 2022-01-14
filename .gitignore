@@ -7,5 +7,5 @@
 # exlude tmp dir
 /tmp
 
-# exclude docker-compose.yaml
-docker-compose.yaml
+# excluse postgres data
+/subql_wika/.data/postgres
