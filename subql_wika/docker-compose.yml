@@ -6,7 +6,7 @@ services:
     ports:
       - 5433:5433
     volumes:
-      - .data/postgres:/var/wika_etl/postgres_data
+      - .data/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgres
       PGPORT: 5433
@@ -25,9 +25,9 @@ services:
       DB_PASS: postgres
       NEO4J_USE: 0
       NEO4J_HOST: neo4j
-      NEO4J_PORT: 5433
+      NEO4J_PORT: 7687
       NEO4j_USER: neo4j
-      NEO4j_PASS: neo4j
+      NEO4j_PASS: 1234
       ES_USE: 0
       ES_HOST: elsaticsearch
       ES_PORT: 1234
@@ -57,3 +57,11 @@ services:
       - --name=app
       - --playground
       - --indexer=http://subquery-node:3000
+
+  neo4j:
+    image: neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      NEO4J_AUTH: neo4j/1234
