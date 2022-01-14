@@ -1,7 +1,6 @@
 import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
 import {BlockInfo,LikeEvent} from "../types";
-import {Balance} from "@polkadot/types/interfaces";
-
+import {PluginNeo4j} from "../plugins/neo4j";
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
     logger.debug('handleBlock'+block)
