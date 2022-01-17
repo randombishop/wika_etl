@@ -23,7 +23,7 @@ services:
       DB_PORT: 5433
       DB_USER: postgres
       DB_PASS: postgres
-      NEO4J_USE: 0
+      NEO4J_ENABLE: 0
       NEO4J_HOST: neo4j
       NEO4J_PORT: 7687
       NEO4j_USER: neo4j
