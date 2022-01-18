@@ -10,7 +10,7 @@ network:
   endpoint: wss://testnode3.wika.network:443
 dataSources:
   - kind: substrate/Runtime
-    startBlock: 1512900
+    startBlock: 1530140
     mapping:
       file: ./dist/index.js
       handlers:

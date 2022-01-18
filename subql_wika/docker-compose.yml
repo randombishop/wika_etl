@@ -23,12 +23,11 @@ services:
       DB_PORT: 5433
       DB_USER: postgres
       DB_PASS: postgres
-      NEO4J_ENABLE: 0
-      NEO4J_HOST: neo4j
-      NEO4J_PORT: 7687
-      NEO4j_USER: neo4j
-      NEO4j_PASS: 1234
-      ES_USE: 0
+      NEO4J_ENABLE: 1
+      NEO4J_HOST: bolt://neo4j
+      NEO4J_USER: neo4j
+      NEO4J_PASS: 1234
+      ES_ENABLE: 0
       ES_HOST: elsaticsearch
       ES_PORT: 1234
       ES_USER: es
