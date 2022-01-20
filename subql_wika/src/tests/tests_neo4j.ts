@@ -4,8 +4,14 @@ import { PluginNeo4j } from '../plugins/neo4j';
 
 const neo4j = new PluginNeo4j() ;
 
-const testUrl1 = 'test://www.test.com/test1' ;
-const testUser1 = 'testUser1' ;
+const testUser1 = 'aaaaaaaaaaaaaaa' ;
+const testUrl1 = 'https://www.wika.network/' ;
+
+const testUser2 = 'bbbbbbbbbbbbbbb' ;
+const testUrl2 = 'https://randombishop.medium.com/are-cryptocurrencies-cool-590c2314c1fc' ;
+
+const testUser3 = 'ccccccccccccccc' ;
+const testUrl3 = 'https://github.com/randombishop/wika_etl' ;
 
 
 describe('PluginNeo4j', function () {
@@ -117,6 +123,100 @@ describe('PluginNeo4j', function () {
         });
 
     }) ;
+
+
+    describe('delete Users and Urls', function () {
+
+        it('should delete testUser2', async function () {
+            await neo4j.deleteUser(testUser2) ;
+            const node = await neo4j.fetchUser(testUser2) ;
+            expect(node).to.be.null ;
+        });
+
+        it('should delete testUser3', async function () {
+            await neo4j.deleteUser(testUser3) ;
+            const node = await neo4j.fetchUser(testUser3) ;
+            expect(node).to.be.null ;
+        });
+
+        it('should delete testUrl2', async function () {
+            await neo4j.deleteUrl(testUrl2) ;
+            const node = await neo4j.fetchUrl(testUrl2) ;
+            expect(node).to.be.null ;
+        });
+
+        it('should delete testUrl3', async function () {
+            await neo4j.deleteUrl(testUrl3) ;
+            const node = await neo4j.fetchUrl(testUrl3) ;
+            expect(node).to.be.null ;
+        });
+
+    });
+
+    describe('handleLikeEvent', function () {
+
+        it('should create a LIKES relation for new user and new url', async function () {
+            await neo4j.handleLikeEvent(testUser2, testUrl2, 1) ;
+            const user = await neo4j.fetchUser(testUser2) ;
+            expect(user.address).to.equal(testUser2);
+            expect(user.numLikes).to.equal(1);
+            const url = await neo4j.fetchUrl(testUrl2) ;
+            expect(url.url).to.equal(testUrl2);
+            expect(url.numLikes).to.equal(1);
+            const likes = await neo4j.fetchLIKES(testUser2, testUrl2) ;
+            expect(likes.numLikes).to.equal(1);
+        });
+
+        it('should create a LIKES relation for new user and existing url', async function () {
+            await neo4j.handleLikeEvent(testUser3, testUrl2, 1) ;
+            const user = await neo4j.fetchUser(testUser3) ;
+            expect(user.address).to.equal(testUser3);
+            expect(user.numLikes).to.equal(1);
+            const url = await neo4j.fetchUrl(testUrl2) ;
+            expect(url.url).to.equal(testUrl2);
+            expect(url.numLikes).to.equal(2);
+            const likes = await neo4j.fetchLIKES(testUser3, testUrl2) ;
+            expect(likes.numLikes).to.equal(1);
+        });
+
+        it('should create a LIKES relation for existing user and new url', async function () {
+            await neo4j.handleLikeEvent(testUser2, testUrl3, 1) ;
+            const user = await neo4j.fetchUser(testUser2) ;
+            expect(user.address).to.equal(testUser2);
+            expect(user.numLikes).to.equal(2);
+            const url = await neo4j.fetchUrl(testUrl3) ;
+            expect(url.url).to.equal(testUrl3);
+            expect(url.numLikes).to.equal(1);
+            const likes = await neo4j.fetchLIKES(testUser2, testUrl3) ;
+            expect(likes.numLikes).to.equal(1);
+        });
+
+        it('should create a LIKES relation for existing user and existing url', async function () {
+            await neo4j.handleLikeEvent(testUser1, testUrl3, 1) ;
+            const user = await neo4j.fetchUser(testUser1) ;
+            expect(user.address).to.equal(testUser1);
+            expect(user.numLikes).to.equal(16);
+            const url = await neo4j.fetchUrl(testUrl3) ;
+            expect(url.url).to.equal(testUrl3);
+            expect(url.numLikes).to.equal(2);
+            const likes = await neo4j.fetchLIKES(testUser1, testUrl3) ;
+            expect(likes.numLikes).to.equal(1);
+        });
+
+        it('should update an existing LIKES relation', async function () {
+            await neo4j.handleLikeEvent(testUser1, testUrl1, 5) ;
+            const user = await neo4j.fetchUser(testUser1) ;
+            expect(user.address).to.equal(testUser1);
+            expect(user.numLikes).to.equal(21);
+            const url = await neo4j.fetchUrl(testUrl1) ;
+            expect(url.url).to.equal(testUrl1);
+            expect(url.numLikes).to.equal(20);
+            const likes = await neo4j.fetchLIKES(testUser1, testUrl1) ;
+            expect(likes.numLikes).to.equal(20);
+        });
+
+
+    });
 
 
     describe('dispose', function () {

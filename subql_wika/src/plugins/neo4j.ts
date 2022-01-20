@@ -158,35 +158,30 @@ export class PluginNeo4j {
     // handleLikeEvent
     // --------------------------------------
 
-    async handleLikeEvent(url: string, user: string, numLikes: number): Promise<void>{
-        logger.debug('handleLikeEvent', url, user, numLikes) ;
-
+    async handleLikeEvent(user: string, url: string, numLikes: number): Promise<void>{
         // Create or update Url
         let urlNode = await this.fetchUrl(url) ;
         if (urlNode==null) {
             urlNode = await this.createUrl(url, numLikes) ;
         } else {
-            await this.updateUrl(url, numLikes) ;
+            urlNode = await this.updateUrl(url, numLikes) ;
         }
-        logger.debug('urlNode', urlNode) ;
 
         // Create or update User
         let userNode = await this.fetchUser(user) ;
         if (userNode==null) {
             userNode = await this.createUser(user, numLikes) ;
         } else {
-            await this.updateUser(user, numLikes) ;
+            userNode = await this.updateUser(user, numLikes) ;
         }
-        logger.debug('userNode', userNode) ;
 
         // Create or update the relationship
-        let relation = await this.fetchLIKES(url, user) ;
+        let relation = await this.fetchLIKES(user, url) ;
         if (relation==null) {
             relation = await this.createLIKES(user, url, numLikes) ;
         } else {
             await this.updateLIKES(user, url, numLikes) ;
         }
-        logger.debug('relation', relation) ;
     }
 
 
