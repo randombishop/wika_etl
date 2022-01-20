@@ -1,6 +1,9 @@
 import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
 import {BlockInfo,LikeEvent} from "../types";
 import {PluginNeo4j} from "../plugins/neo4j";
+import {fetchMetadata} from "../plugins/page_metadata";
+
+
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
     logger.debug('handleBlock'+block)
@@ -21,11 +24,13 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         const user = eventData[0].toString() ;
         const url = eventData[1].toHuman().toString() ;
         const numLikes = Number(eventData[2]) ;
-        logger.debug('LikeEvent id: '+eventId) ;
-        logger.debug('LikeEvent block: '+blockId) ;
-        logger.debug('LikeEvent user: '+user) ;
-        logger.debug('LikeEvent url: '+url) ;
-        logger.debug('LikeEvent numLikes: '+numLikes) ;
+        logger.debug('LikeEvent id',eventId) ;
+        logger.debug('LikeEvent block',blockId) ;
+        logger.debug('LikeEvent user',user) ;
+        logger.debug('LikeEvent url',url) ;
+        logger.debug('LikeEvent numLikes',numLikes) ;
+        const metadata = await fetchMetadata(url) ;
+        logger.debug('LikeEvent metadata', metadata) ;
         let record = new LikeEvent(eventId);
         record.blockId = blockId ;
         record.url = url ;
