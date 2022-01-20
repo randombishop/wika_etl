@@ -26,148 +26,173 @@ export class PluginNeo4j {
         return (this.isEnabled==1) ;
     }
 
-    async fetchUrlNode(url: string) {
-        const session = this.driver.session() ;
-        const result = await session.run(
-            'MATCH (a:Url {url: $url}) RETURN a',
-            { url: url }
-        )
+    getFirstRecord(result) {
         let node = null ;
-        if (result.records.length==1) {
+        if (result.records.length>0) {
             const singleRecord = result.records[0] ;
             node = singleRecord.get(0).properties  ;
         }
-        await session.close() ;
         return node ;
     }
 
-    async createUrlNode(url: string, numLikes: number) {
+    async runQueyAndGetFirstRecord(cql: string, params: object) {
+        //console.log(cql,params) ;
         const session = this.driver.session() ;
-        const result = await session.run(
-            'CREATE (a:Url {url: $url, numLikes: $numLikes}) RETURN a',
-            {url: url, numLikes: numLikes}
-        )
-        const singleRecord = result.records[0]
-        const node = singleRecord.get(0).properties ;
+        const result = await session.run(cql, params) ;
+        const record = this.getFirstRecord(result) ;
         await session.close() ;
+        //console.log('--->', record) ;
+        return record ;
+    }
+
+    async runQuey(cql: string, params: object) {
+        const session = this.driver.session() ;
+        await session.run(cql, params) ;
+        await session.close() ;
+    }
+
+
+
+    // URL CRUD FUNCTIONS
+    // ------------------
+
+    async fetchUrl(url: string) {
+        const cql = 'MATCH (a:Url {url: $url}) RETURN a' ;
+        const params = { url: url } ;
+        const node = await this.runQueyAndGetFirstRecord(cql, params) ;
         return node ;
     }
 
-    async updateUrlNode(url: string, numLikes: number) {
-        const session = this.driver.session() ;
-        await session.run(
-            'MATCH (a:Url {url: $url}) SET a.numLikes=a.numLikes+$numLikes',
-            {url: url, numLikes: numLikes}
-        ) ;
-        await session.close() ;
-    }
-
-    async fetchUserNode(address: string) {
-        const session = this.driver.session() ;
-        const result = await session.run(
-            'MATCH (a:User {address: $address}) RETURN a',
-            {address: address}
-        )
-        let node = null ;
-        if (result.records.length==1) {
-            const singleRecord = result.records[0]
-            node = singleRecord.get(0).properties
-        }
-        await session.close() ;
+    async createUrl(url: string, numLikes: number) {
+        const cql = 'CREATE (a:Url {url: $url, numLikes: $numLikes}) RETURN a' ;
+        const params = {url: url, numLikes: numLikes} ;
+        const node = await this.runQueyAndGetFirstRecord(cql, params) ;
         return node ;
     }
 
-    async createUserNode(address: string, numLikes: number) {
-        const session = this.driver.session() ;
-        const result = await session.run(
-            'CREATE (a:User {address: $address, numLikes: $numLikes}) RETURN a',
-            {address: address, numLikes: numLikes}
-        )
-        const singleRecord = result.records[0]
-        const node = singleRecord.get(0).properties
-        await session.close() ;
+    async updateUrl(url: string, numLikes: number) {
+        const cql = 'MATCH (a:Url {url: $url}) SET a.numLikes=a.numLikes+$numLikes RETURN a';
+        const params = {url: url, numLikes: numLikes} ;
+        const node = await this.runQueyAndGetFirstRecord(cql, params) ;
         return node ;
     }
 
-    async updateUserNode(address: string, numLikes: number) {
-        const session = this.driver.session() ;
-        await session.run(
-            'MATCH (a:User {address: $address}) SET a.numLikes=a.numLikes+$numLikes',
-            {address: address, numLikes: numLikes}
-        )
-        await session.close() ;
+    async deleteUrl(url: string) {
+        const cql = 'MATCH (a:Url {url: $url}) DETACH DELETE a' ;
+        const params = { url: url } ;
+        await this.runQuey(cql, params) ;
     }
 
-    async fetchRelation(url: string, address: string) {
-        const session = this.driver.session() ;
-        const result = await session.run(
-            'MATCH (a:User {address: $address})-[r:LIKES]->(a:Url {url: $url}) RETURN r',
-            {url: url, address: address}
-        )
-        let relation = null ;
-        if (result.records.length==1) {
-            const singleRecord = result.records[0]
-            relation = singleRecord.get(0).properties
-        }
-        await session.close() ;
+
+
+    // User CRUD FUNCTIONS
+    // ---------------------
+
+    async fetchUser(address: string) {
+        const cql = 'MATCH (a:User {address: $address}) RETURN a';
+        const params = {address: address} ;
+        const node = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return node ;
+    }
+
+    async createUser(address: string, numLikes: number) {
+        const cql = 'CREATE (a:User {address: $address, numLikes: $numLikes}) RETURN a' ;
+        const params = {address: address, numLikes: numLikes} ;
+        const node = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return node ;
+    }
+
+    async updateUser(address: string, numLikes: number) {
+        const cql = 'MATCH (a:User {address: $address}) SET a.numLikes=a.numLikes+$numLikes RETURN a' ;
+        const params = {address: address, numLikes: numLikes} ;
+        const node = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return node ;
+    }
+
+    async deleteUser(address: string) {
+        const cql = 'MATCH (a:User {address: $address}) DETACH DELETE a' ;
+        const params = {address: address} ;
+        await this.runQuey(cql, params) ;
+    }
+
+
+
+
+    // USER->URL LIKES Relation CRUD FUNCTIONS
+    // --------------------------------------
+
+    async fetchLIKES(address: string, url: string) {
+        const cql = 'MATCH (a:User {address: $address})-[r:LIKES]->(b:Url {url: $url}) RETURN r' ;
+        const params = {address: address, url: url} ;
+        const relation = await this.runQueyAndGetFirstRecord(cql, params) ;
         return relation ;
     }
 
-    async createRelation(address: string, url: string, numLikes: number) {
-        const session = this.driver.session() ;
+    async createLIKES(address: string, url: string, numLikes: number) {
         let cql = "MATCH (a:User {address: $address}) " ;
         cql += "MATCH (b:Url {url: $url}) " ;
         cql += "CREATE (a)-[r:LIKES {numLikes: $numLikes}]->(b) RETURN r" ;
-        const result = await session.run(cql,
-            {address: address, url: url, numLikes: numLikes}
-        )
-        const singleRecord = result.records[0] ;
-        const node = singleRecord.get(0).properties  ;
-        await session.close() ;
-        return node ;
+        const params = {address: address, url: url, numLikes: numLikes} ;
+        const relation = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return relation ;
     }
 
-    async updateRelation(address: string, url: string, numLikes: number) {
-        const session = this.driver.session() ;
-        let cql = "MATCH (a:User {address: $address})-[r:LIKES {numLikes: $numLikes}]->(b:Url {url: $url}) " ;
-        cql+= "SET r.numLikes = r.numLikes + $numLikes"
-        await session.run(
-            'MATCH (a:User {address: $address}) SET a.numLikes=a.numLikes+$numLikes',
-            {address: address, url: url, numLikes: numLikes}
-        ) ;
-        await session.close() ;
+    async updateLIKES(address: string, url: string, numLikes: number) {
+        let cql = "MATCH (a:User {address: $address})-[r:LIKES]->(b:Url {url: $url}) " ;
+        cql += "SET r.numLikes = r.numLikes + $numLikes " ;
+        cql += "return r" ;
+        const params = {address: address, url: url, numLikes: numLikes} ;
+        const relation = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return relation ;
     }
+
+    async deleteLIKES(address: string, url: string) {
+        const cql = 'MATCH (a:User {address: $address})-[r:LIKES]->(b:Url {url: $url}) DELETE r' ;
+        const params = {address: address, url: url} ;
+        await this.runQuey(cql, params) ;
+    }
+
+
+
+
+    // handleLikeEvent
+    // --------------------------------------
 
     async handleLikeEvent(url: string, user: string, numLikes: number): Promise<void>{
         logger.debug('handleLikeEvent', url, user, numLikes) ;
 
         // Create or update Url
-        let urlNode = await this.fetchUrlNode(url) ;
+        let urlNode = await this.fetchUrl(url) ;
         if (urlNode==null) {
-            urlNode = await this.createUrlNode(url, numLikes) ;
+            urlNode = await this.createUrl(url, numLikes) ;
         } else {
-            await this.updateUrlNode(url, numLikes) ;
+            await this.updateUrl(url, numLikes) ;
         }
         logger.debug('urlNode', urlNode) ;
 
         // Create or update User
-        let userNode = await this.fetchUserNode(user) ;
+        let userNode = await this.fetchUser(user) ;
         if (userNode==null) {
-            userNode = await this.createUserNode(user, numLikes) ;
+            userNode = await this.createUser(user, numLikes) ;
         } else {
-            await this.updateUserNode(user, numLikes) ;
+            await this.updateUser(user, numLikes) ;
         }
         logger.debug('userNode', userNode) ;
 
         // Create or update the relationship
-        let relation = await this.fetchRelation(url, user) ;
+        let relation = await this.fetchLIKES(url, user) ;
         if (relation==null) {
-            relation = await this.createRelation(user, url, numLikes) ;
+            relation = await this.createLIKES(user, url, numLikes) ;
         } else {
-            await this.updateRelation(user, url, numLikes) ;
+            await this.updateLIKES(user, url, numLikes) ;
         }
         logger.debug('relation', relation) ;
     }
+
+
+
+    // Release Neo4j Driver
+    // --------------------------------------
 
     async dispose(): Promise<void>{
         await this.driver.close() ;
