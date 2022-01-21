@@ -10,9 +10,15 @@ const metascraper = require('metascraper')([
   require('metascraper-url')()
 ])
 
-const got = require('got')
+
+const got = require('got') ;
 
 
-export async function fetchMetadata(url: string): Promise<void> {
-
+async function fetchMetadata(targetUrl: string) {
+    const { body: html, url } = await got(targetUrl)
+    const metadata = await metascraper({ html, url })
+    return metadata ;
 }
+
+
+export {fetchMetadata}

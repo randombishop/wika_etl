@@ -30,6 +30,15 @@
     "chai": "^4.3.4",
     "mocha": "^9.1.4",
     "neo4j-driver": "^4.4.1",
-    "metascraper": "^5.25.7"
+    "metascraper": "^5.25.7",
+    "metascraper-author": "^5.25.7",
+    "metascraper-clearbit": "^5.25.7",
+    "metascraper-date": "^5.25.7",
+    "metascraper-description": "^5.25.7",
+    "metascraper-image": "^5.25.7",
+    "metascraper-logo": "^5.25.7",
+    "metascraper-publisher": "^5.25.7",
+    "metascraper-title": "^5.25.7",
+    "metascraper-url": "^5.25.7"
   }
 }
