@@ -11,10 +11,21 @@ services:
       POSTGRES_PASSWORD: postgres
       PGPORT: 5433
 
+  neo4j:
+    image: neo4j
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - .data/neo4j:/var/lib/neo4j/data
+    environment:
+      NEO4J_AUTH: neo4j/1234
+
   subquery-node:
     image: onfinality/subql-node:latest
     depends_on:
       - "postgres"
+      - "neo4j"
     restart: always
     environment:
       NODE_TLS_REJECT_UNAUTHORIZED: 0
@@ -34,16 +45,19 @@ services:
       ES_PASS: es
     volumes:
       - ./:/app
+      - ./sandbox_override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
     command:
       - -f=/app
       - --local
+      - --unsafe
+
+
 
   graphql-engine:
     image: onfinality/subql-query:latest
     ports:
       - 3000:3000
     depends_on:
-      - "postgres"
       - "subquery-node"
     restart: always
     environment:
@@ -57,12 +71,3 @@ services:
       - --playground
       - --indexer=http://subquery-node:3000
 
-  neo4j:
-    image: neo4j
-    ports:
-      - 7474:7474
-      - 7687:7687
-    volumes:
-      - .data/neo4j:/var/lib/neo4j/data
-    environment:
-      NEO4J_AUTH: neo4j/1234

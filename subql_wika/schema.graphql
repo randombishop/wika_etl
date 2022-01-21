@@ -1,7 +1,6 @@
 type BlockInfo @entity {
 
   id: ID! #id is a required field
-
   blockNum: Int!
 
 }
@@ -10,13 +9,23 @@ type BlockInfo @entity {
 type LikeEvent @entity {
 
   id: ID! #id is a required field
-
   blockId: String!
-
   url: String! @index(unique: false)
-
   user: String! @index(unique: false)
-
   numLikes: Int!
+
+}
+
+type UrlMetadata @entity {
+
+  id: ID! #id is a required field
+  author: String
+  date: Date
+  description: String
+  image: String
+  logo: String
+  publisher: String
+  title: String
+  updatedAt: Date!
 
 }
