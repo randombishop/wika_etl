@@ -7,6 +7,9 @@
 # exlude tmp dir
 /tmp
 
+# exclude tmp template
+template
+
 # excluse databases
 /subql_wika/.data/postgres
 /subql_wika/.data/neo4j

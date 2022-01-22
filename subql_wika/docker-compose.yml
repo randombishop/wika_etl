@@ -49,7 +49,7 @@ services:
     command:
       - -f=/app
       - --local
-      - --unsafe
+
 
 
 

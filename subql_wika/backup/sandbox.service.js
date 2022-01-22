@@ -29,9 +29,6 @@ const yargs_1 = require("../yargs");
 const api_service_1 = require("./api.service");
 const store_service_1 = require("./store.service");
 const { argv } = (0, yargs_1.getYargsOption)();
-const whitelist = ['assert', 'buffer', 'crypto', 'util', 'path', 'events',
-                   'net', 'tls', 'fs', 'dns', 'string_decoder', 'vm', 'punycode',
-                   'url', 'stream', 'http', 'https', 'zlib', 'querystring'] ;
 const DEFAULT_OPTION = {
     console: 'redirect',
     wasm: argv.unsafe,
@@ -39,7 +36,7 @@ const DEFAULT_OPTION = {
     require: {
         builtin: argv.unsafe
             ? ['*']
-            : whitelist,
+            : ['assert', 'buffer', 'crypto', 'util', 'path'],
         external: true,
         context: 'sandbox',
     },

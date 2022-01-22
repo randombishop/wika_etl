@@ -1,10 +1,10 @@
 import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
 import {BlockInfo,LikeEvent, UrlMetadata} from "../types";
-//import {PluginNeo4j} from "../plugins/neo4j";
-//import {fetchMetadata} from "../plugins/page_metadata";
+import {PluginNeo4j} from "../plugins/neo4j";
+import {fetchMetadata} from "../plugins/page_metadata";
 
 
-//const neo4j = new PluginNeo4j() ;
+
 
 
 function newBlockInfo(blockId, blockNum) {
@@ -39,7 +39,7 @@ function newMetadataRecord(url, metadata) {
 
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
-    logger.debug('handleBlock'+block)
+    console.log('handleBlock'+block)
     const blockId = block.block.header.hash.toString();
     const blockNum = block.block.header.number.toNumber();
     const record = newBlockInfo(blockId, blockNum);
@@ -53,19 +53,25 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
     const blockNum = event.extrinsic.block.block.header.number.toNumber();
     const eventId = blockNum + '/' + event.idx ;
     if (eventType==="0x0900") {
-        logger.info('handleEvent', eventId, eventData)
         const user = eventData[0].toString() ;
         const url = eventData[1].toHuman().toString() ;
         const numLikes = Number(eventData[2]) ;
-        //const metadata = await fetchMetadata(url) ;
-        //let metadataRecord = newMetadataRecord(url, metadata) ;
-        //await metadataRecord.save();
+        const metadata = await fetchMetadata(url) ;
+        let metadataRecord = newMetadataRecord(url, metadata) ;
+        await metadataRecord.save();
         let record = newLikeEvent(eventId, blockId, url, user, numLikes);
         await record.save();
-        //logger.info('neo4j', neo4j.isSyncEnabled())
-        //if (neo4j.isSyncEnabled()) {
-        //    await neo4j.handleLikeEvent(user, url, numLikes) ;
-        //}
+
+        const neo4j = new PluginNeo4j() ;
+        console.log('NEO4J_ENABLE: ' + process.env.NEO4J_ENABLE) ;
+        console.log('NEO4j_HOST: ' + process.env.NEO4J_HOST) ;
+        console.log('NEO4J_USER: ' + process.env.NEO4J_USER) ;
+        console.log('handleEvent: ' + eventId + ' , ' + eventData) ;
+        console.log('neo4j.isEnabled: ' + neo4j.isSyncEnabled()) ;
+        if (neo4j.isSyncEnabled()) {
+            logger.info('neo4j is enabled')
+            await neo4j.handleLikeEvent(user, url, numLikes) ;
+        }
     }
 }
 
