@@ -55,6 +55,27 @@ neo4j:
   docker cp template_subquery-node_1:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js .
 ```
 
+- Rename to sandbox.override.js
+
+- Make following changes:
+```
+const DEFAULT_OPTION = {
+    console: 'redirect',
+    wasm: argv.unsafe,
+    sandbox: {},
+    require: {
+        builtin: argv.unsafe
+            ? ['*']
+            : whitelist,
+        external: true,
+        context: 'sandbox',
+    },
+    wrapper: 'commonjs',
+    sourceExtensions: ['js', 'cjs'],
+    env: process.env
+};
+```
+
 - Add this volume entry in docker-compose for subql-node:
 ```
 - ./sandbox.override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js

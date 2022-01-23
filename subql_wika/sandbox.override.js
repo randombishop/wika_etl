@@ -47,6 +47,7 @@ const DEFAULT_OPTION = {
     },
     wrapper: 'commonjs',
     sourceExtensions: ['js', 'cjs'],
+    env: process.env
 };
 const logger = (0, logger_1.getLogger)('sandbox');
 class Sandbox extends x_vm2_1.NodeVM {
