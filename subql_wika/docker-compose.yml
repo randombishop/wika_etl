@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   postgres:
@@ -10,6 +10,11 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
       PGPORT: 5433
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   neo4j:
     image: neo4j
@@ -20,13 +25,19 @@ services:
       - .data/neo4j:/var/lib/neo4j/data
     environment:
       NEO4J_AUTH: neo4j/1234
+    healthcheck:
+      test: ["CMD-SHELL", "neo4j status | grep running"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   subquery-node:
-    image: onfinality/subql-node:v0.25.3
+    image: onfinality/subql-node:v0.27.2
     depends_on:
-      - "postgres"
-      - "neo4j"
-    restart: always
+      "postgres":
+        condition: service_healthy
+      "neo4j":
+        condition: service_healthy
     environment:
       NODE_TLS_REJECT_UNAUTHORIZED: 0
       DB_DATABASE: postgres
@@ -45,20 +56,25 @@ services:
       ES_PASS: es
     volumes:
       - ./:/app
-      - ./sandbox_override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
+      - ./sandbox.override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
     command:
       - -f=/app
-      - --local
-
-
-
+      - --db-schema=app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
   graphql-engine:
-    image: onfinality/subql-query:v0.8.0
+    image: onfinality/subql-query:v0.11.0
     ports:
       - 3000:3000
     depends_on:
-      - "subquery-node"
+      "postgres":
+        condition: service_healthy
+      "subquery-node":
+        condition: service_healthy
     restart: always
     environment:
       DB_USER: postgres
@@ -70,4 +86,3 @@ services:
       - --name=app
       - --playground
       - --indexer=http://subquery-node:3000
-
