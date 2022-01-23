@@ -22,7 +22,7 @@ services:
       NEO4J_AUTH: neo4j/1234
 
   subquery-node:
-    image: onfinality/subql-node:latest
+    image: onfinality/subql-node:v0.25.3
     depends_on:
       - "postgres"
       - "neo4j"
@@ -54,7 +54,7 @@ services:
 
 
   graphql-engine:
-    image: onfinality/subql-query:latest
+    image: onfinality/subql-query:v0.8.0
     ports:
       - 3000:3000
     depends_on:

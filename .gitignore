@@ -9,6 +9,7 @@
 
 # exclude tmp template
 template
+template2
 
 # excluse databases
 /subql_wika/.data/postgres

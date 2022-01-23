@@ -1,1 +1,1 @@
-- ./sandbox_override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
+- ./sandbox.override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
