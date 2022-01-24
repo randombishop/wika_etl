@@ -10,13 +10,10 @@ export class PluginNeo4j {
     private driver: Driver ;
 
     constructor() {
-        console.log('NEO4J_ENABLE', process.env.NEO4J_ENABLE) ;
         this.isEnabled = parseInt(process.env.NEO4J_ENABLE) ;
         if (this.isEnabled==1) {
             const host = process.env.NEO4J_HOST ;
-            console.log('NEO4j_HOST', host) ;
             const user = process.env.NEO4J_USER ;
-            console.log('NEO4J_USER', user) ;
             const password = process.env.NEO4J_PASS ;
             this.driver = neo4j.driver(host, neo4j.auth.basic(user, password));
         }

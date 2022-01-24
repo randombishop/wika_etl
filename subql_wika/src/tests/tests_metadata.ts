@@ -8,7 +8,7 @@ const testDataArray = [
         meta: {
             title: 'Home page | Wika Network',
             description: 'Blockchain to manage URL Ownership registry and reward authors with Wika tokens.<head />',
-            image: null,
+            image: undefined,
             icon: '/img/favicon.ico'
         }
     },
@@ -30,8 +30,11 @@ describe('fetchMetadata', function () {
         function testUrl(testData) {
             it('should work for '+testData.url, async function () {
                 const meta = await fetchMetadata(testData.url) ;
-                console.log('meta', meta) ;
+                //console.log('meta', meta) ;
                 expect(meta.title).to.equal(testData.meta.title) ;
+                expect(meta.description).to.equal(testData.meta.description) ;
+                expect(meta.image).to.equal(testData.meta.image) ;
+                expect(meta.icon).to.equal(testData.meta.icon) ;
             });
         };
         for (let i=0;i<testDataArray.length;i++) {
