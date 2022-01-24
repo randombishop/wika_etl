@@ -24,13 +24,10 @@ function newLikeEvent(eventId, blockId, url, user, numLikes) {
 
 function newMetadataRecord(url, metadata) {
     const record = new UrlMetadata(url);
-    record.author = metadata.author ;
-    record.date = metadata.date ;
+    record.title = metadata.title ;
     record.description = metadata.description ;
     record.image = metadata.image ;
-    record.logo = metadata.logo ;
-    record.publisher = metadata.publisher ;
-    record.title = metadata.title ;
+    record.icon = metadata.icon ;
     record.updatedAt = new Date() ;
     return record ;
 }

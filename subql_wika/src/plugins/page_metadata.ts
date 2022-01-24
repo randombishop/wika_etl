@@ -1,26 +1,29 @@
 import cheerio from 'cheerio' ;
 import fetch from 'node-fetch';
 
+class Meta {
+    public title: string;
+    public description: string;
+    public image: string;
+    public icon: string;
+}
 
-async function fetchMetadata(url: string) {
+async function fetchMetadata(url: string): Promise<Meta> {
     try {
         const response = await fetch(url);
         const html = await response.text();
         const $ = cheerio.load(html);
-        const title = $('meta[property="og:title"]').attr('content') || $('title').text() || $('meta[name="title"]').attr('content')
-        const description = $('meta[property="og:description"]').attr('content') || $('meta[name="description"]').attr('content')
-        const site_name = $('meta[property="og:site_name"]').attr('content')
-        const image = $('meta[property="og:image"]').attr('content') || $('meta[property="og:image:url"]').attr('content')
-        const icon = $('link[rel="icon"]').attr('href') || $('link[rel="shortcut icon"]').attr('href')
-        const keywords = $('meta[property="og:keywords"]').attr('content') || $('meta[name="keywords"]').attr('content')
-        return {
-            title: title
-        } ;
+        const ans = new Meta() ;
+        ans.title = $('meta[property="og:title"]').attr('content') || $('title').text() || $('meta[name="title"]').attr('content')
+        ans.description = $('meta[property="og:description"]').attr('content') || $('meta[name="description"]').attr('content')
+        ans.image = $('meta[property="og:image"]').attr('content') || $('meta[property="og:image:url"]').attr('content')
+        ans.icon = $('link[rel="icon"]').attr('href') || $('link[rel="shortcut icon"]').attr('href')
+        return ans ;
     } catch(err) {
-        console.log('fetchMetadata error', err) ;
+        //console.log('fetchMetadata error', err) ;
         return null ;
     }
 }
 
 
-export {fetchMetadata}
+export {fetchMetadata, Meta}
