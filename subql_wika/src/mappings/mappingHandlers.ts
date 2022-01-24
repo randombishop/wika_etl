@@ -1,14 +1,45 @@
 import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
-import {BlockInfo,LikeEvent} from "../types";
-import {Balance} from "@polkadot/types/interfaces";
+import {BlockInfo,LikeEvent, UrlMetadata} from "../types";
+import {PluginNeo4j} from "../plugins/neo4j";
+import {fetchMetadata} from "../plugins/page_metadata";
+
+
+
+
+
+function newBlockInfo(blockId, blockNum) {
+    const record = new BlockInfo(blockId);
+    record.blockNum = blockNum;
+    return record ;
+}
+
+function newLikeEvent(eventId, blockId, url, user, numLikes) {
+    const record = new LikeEvent(eventId);
+    record.blockId = blockId ;
+    record.url = url ;
+    record.user = user ;
+    record.numLikes = numLikes ;
+    return record ;
+}
+
+function newMetadataRecord(url, metadata) {
+    const record = new UrlMetadata(url);
+    record.title = metadata.title ;
+    record.description = metadata.description ;
+    record.image = metadata.image ;
+    record.icon = metadata.icon ;
+    record.updatedAt = new Date() ;
+    return record ;
+}
+
+
 
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
-    logger.debug('handleBlock'+block)
+    logger.info('handleBlock'+block)
     const blockId = block.block.header.hash.toString();
     const blockNum = block.block.header.number.toNumber();
-    let record = new BlockInfo(blockId);
-    record.blockNum = blockNum;
+    const record = newBlockInfo(blockId, blockNum);
     await record.save();
 }
 
@@ -22,34 +53,34 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         const user = eventData[0].toString() ;
         const url = eventData[1].toHuman().toString() ;
         const numLikes = Number(eventData[2]) ;
-        logger.debug('LikeEvent id: '+eventId) ;
-        logger.debug('LikeEvent block: '+blockId) ;
-        logger.debug('LikeEvent user: '+user) ;
-        logger.debug('LikeEvent url: '+url) ;
-        logger.debug('LikeEvent numLikes: '+numLikes) ;
-        let record = new LikeEvent(eventId);
-        record.blockId = blockId ;
-        record.url = url ;
-        record.user = user ;
-        record.numLikes = numLikes ;
+
+        // Metadata
+        const metadata = await fetchMetadata(url) ;
+        if (metadata) {
+            let metadataRecord = newMetadataRecord(url, metadata) ;
+            await metadataRecord.save();
+        }
+
+        // Main record
+        let record = newLikeEvent(eventId, blockId, url, user, numLikes);
         await record.save();
+
+        // Neo4J sync
+        const neo4j = new PluginNeo4j() ;
+        logger.info('NEO4J_ENABLE: ' + process.env.NEO4J_ENABLE) ;
+        logger.info('NEO4j_HOST: ' + process.env.NEO4J_HOST) ;
+        logger.info('NEO4J_USER: ' + process.env.NEO4J_USER) ;
+        logger.info('handleEvent: ' + eventId + ' , ' + eventData) ;
+        logger.info('neo4j.isEnabled: ' + neo4j.isSyncEnabled()) ;
+        if (neo4j.isSyncEnabled()) {
+            logger.info('neo4j is enabled')
+            await neo4j.handleLikeEvent(user, url, numLikes) ;
+        }
     }
-    //const {event: {data: [account, balance]}} = event;
-    //Retrieve the record by its ID
-    //const record = await StarterEntity.get(event.extrinsic.block.block.header.hash.toString());
-    //record.field2 = account.toString();
-    //Big integer type Balance of a transfer event
-    //record.field3 = (balance as Balance).toBigInt();
-    //await record.save();
 }
 
 export async function handleCall(extrinsic: SubstrateExtrinsic): Promise<void> {
-    //const record = await StarterEntity.get(extrinsic.block.block.header.hash.toString());
-    //Date type timestamp
-    //record.field4 = extrinsic.block.timestamp;
-    //Boolean tyep
-    //record.field5 = true;
-    //await record.save();
+
 }
 
 

@@ -6,11 +6,11 @@ repository: https://github.com/randombishop/wika_etl
 schema:
   file: ./schema.graphql
 network:
-  genesisHash: '0x59732b25bb635769e91a71f818c6d845b9bdcd371bb93d1512b1eacedb53d4be'
   endpoint: wss://testnode3.wika.network:443
+  genesisHash: '0x59732b25bb635769e91a71f818c6d845b9bdcd371bb93d1512b1eacedb53d4be'
 dataSources:
   - kind: substrate/Runtime
-    startBlock: 1471900
+    startBlock: 1612009
     mapping:
       file: ./dist/index.js
       handlers:
