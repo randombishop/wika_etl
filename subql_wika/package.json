@@ -1,12 +1,12 @@
 {
-  "name": "template",
+  "name": "subql_wika",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc -b",
     "prepack": "rm -rf dist && npm build",
-    "test": "mocha dist/tests",
+    "test": "mocha dist/tests --timeout 5000",
     "codegen": "./node_modules/.bin/subql codegen"
   },
   "homepage": "https://github.com/subquery/subql-starter",
