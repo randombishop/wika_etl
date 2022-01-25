@@ -1,10 +1,13 @@
 import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
 import {BlockInfo,LikeEvent, UrlMetadata} from "../types";
 import {PluginNeo4j} from "../plugins/neo4j";
+import {PluginElasticSearch} from "../plugins/elastic";
 import {fetchMetadata} from "../plugins/page_metadata";
 
 
+const neo4j = new PluginNeo4j() ;
 
+const elastic = new PluginElasticSearch() ;
 
 
 function newBlockInfo(blockId, blockNum) {
@@ -66,7 +69,6 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         await record.save();
 
         // Neo4J sync
-        const neo4j = new PluginNeo4j() ;
         logger.info('NEO4J_ENABLE: ' + process.env.NEO4J_ENABLE) ;
         logger.info('NEO4j_HOST: ' + process.env.NEO4J_HOST) ;
         logger.info('NEO4J_USER: ' + process.env.NEO4J_USER) ;
