@@ -14,3 +14,5 @@ template2
 # excluse databases
 /subql_wika/.data/postgres
 /subql_wika/.data/neo4j
+/subql_wika/.data/es
+
