@@ -1,7 +1,7 @@
 import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
 import {BlockInfo,LikeEvent, UrlMetadata} from "../types";
 import {PluginNeo4j} from "../plugins/neo4j";
-import {PluginElasticSearch} from "../plugins/elastic";
+import {PluginElasticSearch} from "../plugins/elastic_search";
 import {fetchMetadata} from "../plugins/page_metadata";
 
 

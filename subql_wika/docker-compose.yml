@@ -51,9 +51,8 @@ services:
       NEO4J_HOST: bolt://neo4j
       NEO4J_USER: neo4j
       NEO4J_PASS: 1234
-      ES_ENABLE: 0
-      ES_HOST: elsaticsearch
-      ES_PORT: 1234
+      ES_ENABLE: 1
+      ES_HOST: http://es:9200
       ES_USER: es
       ES_PASS: es
     volumes:

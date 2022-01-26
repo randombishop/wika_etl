@@ -1,12 +1,7 @@
 import cheerio from 'cheerio' ;
 import fetch from 'node-fetch';
+import Meta from './meta' ;
 
-class Meta {
-    public title: string;
-    public description: string;
-    public image: string;
-    public icon: string;
-}
 
 async function fetchMetadata(url: string): Promise<Meta> {
     try {
@@ -14,6 +9,7 @@ async function fetchMetadata(url: string): Promise<Meta> {
         const html = await response.text();
         const $ = cheerio.load(html);
         const ans = new Meta() ;
+        ans.url = url ;
         ans.title = $('meta[property="og:title"]').attr('content') || $('title').text() || $('meta[name="title"]').attr('content')
         ans.description = $('meta[property="og:description"]').attr('content') || $('meta[name="description"]').attr('content')
         ans.image = $('meta[property="og:image"]').attr('content') || $('meta[property="og:image:url"]').attr('content')
