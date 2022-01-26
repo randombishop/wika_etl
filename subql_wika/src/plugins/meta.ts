@@ -4,6 +4,7 @@ class Meta {
     public description: string;
     public image: string;
     public icon: string;
+    public updatedAt: Date;
 }
 
 export default Meta ;

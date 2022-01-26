@@ -31,7 +31,7 @@ function newMetadataRecord(url, metadata) {
     record.description = metadata.description ;
     record.image = metadata.image ;
     record.icon = metadata.icon ;
-    record.updatedAt = new Date() ;
+    record.updatedAt = metadata.updatedAt ;
     return record ;
 }
 
@@ -62,6 +62,10 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         if (metadata) {
             let metadataRecord = newMetadataRecord(url, metadata) ;
             await metadataRecord.save();
+            if (elastic.isSyncEnabled()) {
+                logger.info('elastic search is enabled')
+                await elastic.postUrl(url, metadata) ;
+            }
         }
 
         // Main record
@@ -69,11 +73,6 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
         await record.save();
 
         // Neo4J sync
-        logger.info('NEO4J_ENABLE: ' + process.env.NEO4J_ENABLE) ;
-        logger.info('NEO4j_HOST: ' + process.env.NEO4J_HOST) ;
-        logger.info('NEO4J_USER: ' + process.env.NEO4J_USER) ;
-        logger.info('handleEvent: ' + eventId + ' , ' + eventData) ;
-        logger.info('neo4j.isEnabled: ' + neo4j.isSyncEnabled()) ;
         if (neo4j.isSyncEnabled()) {
             logger.info('neo4j is enabled')
             await neo4j.handleLikeEvent(user, url, numLikes) ;

@@ -14,6 +14,7 @@ async function fetchMetadata(url: string): Promise<Meta> {
         ans.description = $('meta[property="og:description"]').attr('content') || $('meta[name="description"]').attr('content')
         ans.image = $('meta[property="og:image"]').attr('content') || $('meta[property="og:image:url"]').attr('content')
         ans.icon = $('link[rel="icon"]').attr('href') || $('link[rel="shortcut icon"]').attr('href')
+        ans.updatedAt = new Date() ;
         return ans ;
     } catch(err) {
         //console.log('fetchMetadata error', err) ;

@@ -12,7 +12,7 @@ testMeta.title = 'Test Title' ;
 testMeta.description = 'Test Description Bla bla bla ...' ;
 testMeta.image = 'Test Image' ;
 testMeta.icon = 'Test Icon' ;
-
+testMeta.updatedAt = new Date() ;
 
 describe('PluginElasticSearch', function () {
 
