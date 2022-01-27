@@ -1,20 +1,11 @@
 type BlockInfo @entity {
 
   id: ID! #id is a required field
-  blockNum: Int!
+  blockNum: Int! @index(unique: true)
+  syncDate: Date!
 
 }
 
-
-type LikeEvent @entity {
-
-  id: ID! #id is a required field
-  blockId: String!
-  url: String! @index(unique: false)
-  user: String! @index(unique: false)
-  numLikes: Int!
-
-}
 
 type UrlMetadata @entity {
 
@@ -24,5 +15,27 @@ type UrlMetadata @entity {
   image: String
   icon: String
   updatedAt: Date!
+
+}
+
+
+type LikeEvent @entity {
+
+  id: ID! #id is a required field
+  url: String! @index(unique: false)
+  user: String! @index(unique: false)
+  numLikes: Int!
+  blockNum: Int!
+
+}
+
+
+type UrlRegisteredEvent @entity {
+
+  id: ID! #id is a required field
+  url: String! @index(unique: false)
+  owner: String! @index(unique: false)
+  active: Boolean!
+  blockNum: Int!
 
 }

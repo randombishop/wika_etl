@@ -1,5 +1,5 @@
-import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
-import {BlockInfo,LikeEvent, UrlMetadata} from "../types";
+import {SubstrateExtrinsic, SubstrateEvent, SubstrateBlock} from "@subql/types";
+import {BlockInfo, LikeEvent, UrlRegisteredEvent, UrlMetadata} from "../types";
 import {PluginNeo4j} from "../plugins/neo4j";
 import {PluginElasticSearch} from "../plugins/elastic_search";
 import {fetchMetadata} from "../plugins/page_metadata";
@@ -22,15 +22,16 @@ const URL_REGISTERED_EVENT_TYPE = "0x0a06" ;
 function newBlockInfo(blockId, blockNum) {
     const record = new BlockInfo(blockId);
     record.blockNum = blockNum;
+    record.syncDate = new Date() ;
     return record ;
 }
 
-function newLikeEvent(eventId, blockId, url, user, numLikes) {
+function newLikeEvent(eventId, blockNum, url, user, numLikes) {
     const record = new LikeEvent(eventId);
-    record.blockId = blockId ;
     record.url = url ;
     record.user = user ;
     record.numLikes = numLikes ;
+    record.blockNum = blockNum ;
     return record ;
 }
 
@@ -44,6 +45,14 @@ function newMetadataRecord(url, metadata) {
     return record ;
 }
 
+function newUrlRegisteredEvent(eventId, blockNum, url, owner) {
+    const record = new UrlRegisteredEvent(eventId);
+    record.url = url ;
+    record.owner = owner ;
+    record.active = true ;
+    record.blockNum = blockNum ;
+    return record ;
+}
 
 
 
@@ -71,7 +80,7 @@ async function handleLikeEvent(event) {
     }
 
     // Main record
-    let record = newLikeEvent(eventId, blockId, url, user, numLikes);
+    let record = newLikeEvent(eventId, blockNum, url, user, numLikes);
     await record.save();
 
     // Neo4J sync
@@ -89,6 +98,16 @@ async function handleUrlRegisteredEvent(event) {
     const urlHash = crypto.createHash('md5').update(url).digest('hex');
     const eventId = blockNum+'/'+urlHash ;
     logger.info('handleUrlRegisteredEvent : '+eventId+' : '+user+' : '+url) ;
+    const previousRecords = await UrlRegisteredEvent.getByOwner(user) ;
+    if (previousRecords!=null) {
+        for (let i=0;i<previousRecords.length;i++) {
+            let previousRecord = previousRecords[i] ;
+            previousRecord.active=false ;
+            previousRecord.save() ;
+        }
+    }
+    const record = newUrlRegisteredEvent(eventId, blockNum, url, user) ;
+    await record.save();
 }
 
 
