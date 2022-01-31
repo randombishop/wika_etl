@@ -150,6 +150,31 @@ export class PluginNeo4j {
     }
 
 
+    // USER->URL OWNS Relation CRUD FUNCTIONS
+    // --------------------------------------
+
+    async fetchOWNS(address: string, url: string) {
+        const cql = 'MATCH (a:User {address: $address})-[r:OWNS]->(b:Url {url: $url}) RETURN r' ;
+        const params = {address: address, url: url} ;
+        const relation = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return relation ;
+    }
+
+    async createOWNS(address: string, url: string) {
+        let cql = "MATCH (a:User {address: $address}) " ;
+        cql += "MATCH (b:Url {url: $url}) " ;
+        cql += "CREATE (a)-[r:OWNS]->(b) RETURN r" ;
+        const params = {address: address, url: url} ;
+        const relation = await this.runQueyAndGetFirstRecord(cql, params) ;
+        return relation ;
+    }
+
+    async deleteOWNS(address: string, url: string) {
+        const cql = 'MATCH (a:User {address: $address})-[r:OWNS]->(b:Url {url: $url}) DELETE r' ;
+        const params = {address: address, url: url} ;
+        await this.runQuey(cql, params) ;
+    }
+
 
 
     // handleLikeEvent
@@ -178,6 +203,29 @@ export class PluginNeo4j {
             relation = await this.createLIKES(user, url, numLikes) ;
         } else {
             await this.updateLIKES(user, url, numLikes) ;
+        }
+    }
+
+    // handleUrlRegisteredEvent
+    // --------------------------------------
+
+    async handleUrlRegisteredEvent(user: string, url: string): Promise<void>{
+        // Create or update Url
+        let urlNode = await this.fetchUrl(url) ;
+        if (urlNode==null) {
+            urlNode = await this.createUrl(url, 0) ;
+        }
+
+        // Create or update User
+        let userNode = await this.fetchUser(user) ;
+        if (userNode==null) {
+            userNode = await this.createUser(user, 0) ;
+        }
+
+        // Create the relationship if not exists
+        let relation = await this.fetchOWNS(user, url) ;
+        if (relation==null) {
+            relation = await this.createOWNS(user, url) ;
         }
     }
 
