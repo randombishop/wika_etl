@@ -13,6 +13,9 @@ const testUrl2 = 'https://randombishop.medium.com/are-cryptocurrencies-cool-590c
 const testUser3 = 'ccccccccccccccc' ;
 const testUrl3 = 'https://github.com/randombishop/wika_etl' ;
 
+const testUser4 = 'dddddddddddddd' ;
+const testUrl4 = 'https://www.example.com' ;
+
 
 describe('PluginNeo4j', function () {
 
@@ -124,7 +127,6 @@ describe('PluginNeo4j', function () {
 
     }) ;
 
-
     describe('delete Users and Urls', function () {
 
         it('should delete testUser2', async function () {
@@ -136,6 +138,12 @@ describe('PluginNeo4j', function () {
         it('should delete testUser3', async function () {
             await neo4j.deleteUser(testUser3) ;
             const node = await neo4j.fetchUser(testUser3) ;
+            expect(node).to.be.null ;
+        });
+
+        it('should delete testUser4', async function () {
+            await neo4j.deleteUser(testUser4) ;
+            const node = await neo4j.fetchUser(testUser4) ;
             expect(node).to.be.null ;
         });
 
@@ -151,7 +159,43 @@ describe('PluginNeo4j', function () {
             expect(node).to.be.null ;
         });
 
+        it('should delete testUrl4', async function () {
+            await neo4j.deleteUrl(testUrl4) ;
+            const node = await neo4j.fetchUrl(testUrl4) ;
+            expect(node).to.be.null ;
+        });
+
     });
+
+    describe('OWNS CRUD', function() {
+
+        describe('deleteOWNS', function () {
+            it('should delete a OWNS relation if it exists', async function () {
+                await neo4j.deleteOWNS(testUser1, testUrl1) ;
+                const relation1 = await neo4j.fetchOWNS(testUser1, testUrl1) ;
+                expect(relation1).to.be.null ;
+                await neo4j.deleteOWNS(testUser4, testUrl4) ;
+                const relation2 = await neo4j.fetchOWNS(testUser4, testUrl4) ;
+                expect(relation2).to.be.null ;
+            });
+        });
+
+        describe('createOWNS', function () {
+            it('should create a new OWNS relation', async function () {
+                const newRelation = await neo4j.createOWNS(testUser1, testUrl1) ;
+                expect(newRelation).to.be.not.null;
+            });
+        });
+
+        describe('fetchOWNS', function () {
+            it('should fetch the OWNS relation we just created', async function () {
+                const relation = await neo4j.fetchOWNS(testUser1, testUrl1) ;
+                expect(relation).to.be.not.null;
+            });
+        });
+
+    }) ;
+
 
     describe('handleLikeEvent', function () {
 
@@ -217,6 +261,36 @@ describe('PluginNeo4j', function () {
 
 
     });
+
+
+
+
+    describe('handleUrlRegisteredEvent', function () {
+
+        it('should create a OWNS relation for new user and new url', async function () {
+            await neo4j.handleUrlRegisteredEvent(testUser4, testUrl4) ;
+            const user = await neo4j.fetchUser(testUser4) ;
+            expect(user.address).to.equal(testUser4);
+            expect(user.numLikes).to.equal(0);
+            const url = await neo4j.fetchUrl(testUrl4) ;
+            expect(url.url).to.equal(testUrl4);
+            expect(url.numLikes).to.equal(0);
+            const owns = await neo4j.fetchOWNS(testUser4, testUrl4) ;
+            expect(owns).to.be.not.null;
+        });
+
+        it('should create a OWNS relation for an existing user and existing url', async function () {
+            await neo4j.handleUrlRegisteredEvent(testUser1, testUrl1) ;
+            const user = await neo4j.fetchUser(testUser1) ;
+            expect(user.address).to.equal(testUser1);
+            const url = await neo4j.fetchUrl(testUrl1) ;
+            expect(url.url).to.equal(testUrl1);
+            const owns = await neo4j.fetchLIKES(testUser1, testUrl1) ;
+            expect(owns).to.be.not.null;
+        });
+
+    });
+
 
 
     describe('dispose', function () {

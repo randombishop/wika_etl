@@ -98,6 +98,8 @@ async function handleUrlRegisteredEvent(event) {
     const urlHash = crypto.createHash('md5').update(url).digest('hex');
     const eventId = blockNum+'/'+urlHash ;
     logger.info('handleUrlRegisteredEvent : '+eventId+' : '+user+' : '+url) ;
+
+    // Deactivate previous records
     const previousRecords = await UrlRegisteredEvent.getByOwner(user) ;
     if (previousRecords!=null) {
         for (let i=0;i<previousRecords.length;i++) {
@@ -106,8 +108,27 @@ async function handleUrlRegisteredEvent(event) {
             previousRecord.save() ;
         }
     }
+
+    // Metadata
+    const metadata = await fetchMetadata(url) ;
+    if (metadata) {
+        let metadataRecord = newMetadataRecord(url, metadata) ;
+        await metadataRecord.save();
+        if (elastic.isSyncEnabled()) {
+            logger.info('elastic search is enabled')
+            await elastic.postUrl(url, metadata) ;
+        }
+    }
+
+    // Main record
     const record = newUrlRegisteredEvent(eventId, blockNum, url, user) ;
     await record.save();
+
+    // Neo4J sync
+    if (neo4j.isSyncEnabled()) {
+        logger.info('neo4j is enabled')
+        await neo4j.handleUrlRegisteredEvent(user, url) ;
+    }
 }
 
 
