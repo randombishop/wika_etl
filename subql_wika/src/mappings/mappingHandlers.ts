@@ -1,24 +1,37 @@
-import {SubstrateExtrinsic,SubstrateEvent,SubstrateBlock} from "@subql/types";
-import {BlockInfo,LikeEvent, UrlMetadata} from "../types";
+import {SubstrateExtrinsic, SubstrateEvent, SubstrateBlock} from "@subql/types";
+import {BlockInfo, LikeEvent, UrlRegisteredEvent, UrlMetadata} from "../types";
 import {PluginNeo4j} from "../plugins/neo4j";
+import {PluginElasticSearch} from "../plugins/elastic_search";
 import {fetchMetadata} from "../plugins/page_metadata";
+import crypto from 'crypto';
 
 
+// Data Plugins
+// ---------------------
+
+const neo4j = new PluginNeo4j() ;
+const elastic = new PluginElasticSearch() ;
 
 
+// Utils
+// ---------------------
+
+const LIKE_EVENT_TYPE = "0x0900" ;
+const URL_REGISTERED_EVENT_TYPE = "0x0a06" ;
 
 function newBlockInfo(blockId, blockNum) {
     const record = new BlockInfo(blockId);
     record.blockNum = blockNum;
+    record.syncDate = new Date() ;
     return record ;
 }
 
-function newLikeEvent(eventId, blockId, url, user, numLikes) {
+function newLikeEvent(eventId, blockNum, url, user, numLikes) {
     const record = new LikeEvent(eventId);
-    record.blockId = blockId ;
     record.url = url ;
     record.user = user ;
     record.numLikes = numLikes ;
+    record.blockNum = blockNum ;
     return record ;
 }
 
@@ -28,17 +41,110 @@ function newMetadataRecord(url, metadata) {
     record.description = metadata.description ;
     record.image = metadata.image ;
     record.icon = metadata.icon ;
-    record.updatedAt = new Date() ;
+    record.updatedAt = metadata.updatedAt ;
+    return record ;
+}
+
+function newUrlRegisteredEvent(eventId, blockNum, url, owner) {
+    const record = new UrlRegisteredEvent(eventId);
+    record.url = url ;
+    record.owner = owner ;
+    record.active = true ;
+    record.blockNum = blockNum ;
     return record ;
 }
 
 
 
+// Event Handlers
+// ---------------------
+
+async function handleLikeEvent(event) {
+    const eventData = event.event.data ;
+    const blockId = event.extrinsic.block.block.header.hash.toString() ;
+    const blockNum = event.extrinsic.block.block.header.number.toNumber();
+    const eventId = blockNum + '/' + event.idx ;
+    const user = eventData[0].toString() ;
+    const url = eventData[1].toHuman().toString() ;
+    const numLikes = Number(eventData[2]) ;
+
+    // Metadata
+    const metadata = await fetchMetadata(url) ;
+    if (metadata) {
+        let metadataRecord = newMetadataRecord(url, metadata) ;
+        await metadataRecord.save();
+        if (elastic.isSyncEnabled()) {
+            logger.info('elastic search is enabled')
+            await elastic.postUrl(url, metadata) ;
+        }
+    }
+
+    // Main record
+    let record = newLikeEvent(eventId, blockNum, url, user, numLikes);
+    await record.save();
+
+    // Neo4J sync
+    if (neo4j.isSyncEnabled()) {
+        logger.info('neo4j is enabled')
+        await neo4j.handleLikeEvent(user, url, numLikes) ;
+    }
+}
+
+async function handleUrlRegisteredEvent(event) {
+    const eventData = event.event.data ;
+    const user = eventData[0].toString() ;
+    const url = eventData[1].toHuman().toString() ;
+    const blockNum = eventData[2].toNumber();
+    const urlHash = crypto.createHash('md5').update(url).digest('hex');
+    const eventId = blockNum+'/'+urlHash ;
+    logger.info('handleUrlRegisteredEvent : '+eventId+' : '+user+' : '+url) ;
+
+    // Deactivate previous records
+    const previousRecords = await UrlRegisteredEvent.getByOwner(user) ;
+    if (previousRecords!=null) {
+        for (let i=0;i<previousRecords.length;i++) {
+            let previousRecord = previousRecords[i] ;
+            previousRecord.active=false ;
+            previousRecord.save() ;
+        }
+    }
+
+    // Metadata
+    const metadata = await fetchMetadata(url) ;
+    if (metadata) {
+        let metadataRecord = newMetadataRecord(url, metadata) ;
+        await metadataRecord.save();
+        if (elastic.isSyncEnabled()) {
+            logger.info('elastic search is enabled')
+            await elastic.postUrl(url, metadata) ;
+        }
+    }
+
+    // Main record
+    const record = newUrlRegisteredEvent(eventId, blockNum, url, user) ;
+    await record.save();
+
+    // Neo4J sync
+    if (neo4j.isSyncEnabled()) {
+        logger.info('neo4j is enabled')
+        await neo4j.handleUrlRegisteredEvent(user, url) ;
+    }
+}
+
+
+
+
+
+
+
+
+// Subquery Main Handlers
+// --------------------------
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
-    logger.info('handleBlock'+block)
     const blockId = block.block.header.hash.toString();
     const blockNum = block.block.header.number.toNumber();
+    logger.info('handleBlock: '+blockNum)
     const record = newBlockInfo(blockId, blockNum);
     await record.save();
 }
@@ -46,36 +152,11 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
 export async function handleEvent(event: SubstrateEvent): Promise<void> {
     const eventType = event.event.index.toHex() ;
     const eventData = event.event.data ;
-    const blockId = event.extrinsic.block.block.header.hash.toString() ;
-    const blockNum = event.extrinsic.block.block.header.number.toNumber();
-    const eventId = blockNum + '/' + event.idx ;
-    if (eventType==="0x0900") {
-        const user = eventData[0].toString() ;
-        const url = eventData[1].toHuman().toString() ;
-        const numLikes = Number(eventData[2]) ;
-
-        // Metadata
-        const metadata = await fetchMetadata(url) ;
-        if (metadata) {
-            let metadataRecord = newMetadataRecord(url, metadata) ;
-            await metadataRecord.save();
-        }
-
-        // Main record
-        let record = newLikeEvent(eventId, blockId, url, user, numLikes);
-        await record.save();
-
-        // Neo4J sync
-        const neo4j = new PluginNeo4j() ;
-        logger.info('NEO4J_ENABLE: ' + process.env.NEO4J_ENABLE) ;
-        logger.info('NEO4j_HOST: ' + process.env.NEO4J_HOST) ;
-        logger.info('NEO4J_USER: ' + process.env.NEO4J_USER) ;
-        logger.info('handleEvent: ' + eventId + ' , ' + eventData) ;
-        logger.info('neo4j.isEnabled: ' + neo4j.isSyncEnabled()) ;
-        if (neo4j.isSyncEnabled()) {
-            logger.info('neo4j is enabled')
-            await neo4j.handleLikeEvent(user, url, numLikes) ;
-        }
+    logger.info('handleEvent : '+eventType+' : '+eventData) ;
+    if (eventType===LIKE_EVENT_TYPE) {
+        handleLikeEvent(event) ;
+    } else if (eventType===URL_REGISTERED_EVENT_TYPE) {
+        handleUrlRegisteredEvent(event) ;
     }
 }
 
