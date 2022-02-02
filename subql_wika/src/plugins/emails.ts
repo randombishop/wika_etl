@@ -40,7 +40,7 @@ export class PluginEmails {
             body: JSON.stringify(payload)
         } ;
         const response = await fetch(this.host, config);
-        console.log(response) ;
+        return response ;
     }
 
 }
