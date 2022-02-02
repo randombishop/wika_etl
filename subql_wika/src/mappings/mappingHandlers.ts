@@ -4,6 +4,8 @@ import {PluginNeo4j} from "../plugins/neo4j";
 import {PluginElasticSearch} from "../plugins/elastic_search";
 import {fetchMetadata} from "../plugins/page_metadata";
 import crypto from 'crypto';
+import {PluginEmails} from '../plugins/emails' ;
+
 
 
 // Data Plugins
@@ -11,6 +13,7 @@ import crypto from 'crypto';
 
 const neo4j = new PluginNeo4j() ;
 const elastic = new PluginElasticSearch() ;
+const emails = new PluginEmails() ;
 
 
 // Utils
@@ -142,21 +145,35 @@ async function handleUrlRegisteredEvent(event) {
 // --------------------------
 
 export async function handleBlock(block: SubstrateBlock): Promise<void> {
-    const blockId = block.block.header.hash.toString();
-    const blockNum = block.block.header.number.toNumber();
-    logger.info('handleBlock: '+blockNum)
-    const record = newBlockInfo(blockId, blockNum);
-    await record.save();
+    try {
+        const blockId = block.block.header.hash.toString();
+        const blockNum = block.block.header.number.toNumber();
+        logger.info('handleBlock: '+blockNum)
+        const record = newBlockInfo(blockId, blockNum);
+        await record.save();
+    } catch (e) {
+        if (emails.isEnabled()) {
+            emails.sendError(e.toString()) ;
+        }
+        logger.error(e);
+    }
 }
 
 export async function handleEvent(event: SubstrateEvent): Promise<void> {
-    const eventType = event.event.index.toHex() ;
-    const eventData = event.event.data ;
-    logger.info('handleEvent : '+eventType+' : '+eventData) ;
-    if (eventType===LIKE_EVENT_TYPE) {
-        handleLikeEvent(event) ;
-    } else if (eventType===URL_REGISTERED_EVENT_TYPE) {
-        handleUrlRegisteredEvent(event) ;
+    try {
+        const eventType = event.event.index.toHex() ;
+        const eventData = event.event.data ;
+        logger.info('handleEvent : '+eventType+' : '+eventData) ;
+        if (eventType===LIKE_EVENT_TYPE) {
+            handleLikeEvent(event) ;
+        } else if (eventType===URL_REGISTERED_EVENT_TYPE) {
+            handleUrlRegisteredEvent(event) ;
+        }
+    } catch (e) {
+        if (emails.isEnabled()) {
+            emails.sendError(e.toString()) ;
+        }
+        logger.error(e);
     }
 }
 

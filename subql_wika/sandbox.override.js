@@ -31,7 +31,8 @@ const store_service_1 = require("./store.service");
 const { argv } = (0, yargs_1.getYargsOption)();
 const whitelist = ['assert', 'buffer', 'crypto', 'util', 'path',
                    'net', 'tls', 'fs', 'dns', 'string_decoder', 'vm', 'punycode',
-                   'url', 'stream', 'http', 'https', 'zlib', 'querystring']
+                   'url', 'stream', 'http', 'https', 'zlib', 'querystring',
+                   'os', 'child_process']
 
 
 const DEFAULT_OPTION = {

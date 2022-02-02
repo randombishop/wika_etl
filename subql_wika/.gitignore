@@ -53,3 +53,7 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Docker-compose containing secrets
+docker-compose-with-secrets.yml
+
+

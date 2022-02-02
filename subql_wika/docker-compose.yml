@@ -55,6 +55,11 @@ services:
       ES_HOST: http://es:9200
       ES_USER: es
       ES_PASS: es
+      EMAIL_ALERT_ENABLE: 0
+      EMAIL_ALERT_HOST: emailapi.com
+      EMAIL_ALERT_FROM: test
+      EMAIL_ALERT_TO: test
+      EMAIL_ALERT_KEY: abcd
     volumes:
       - ./:/app
       - ./sandbox.override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
