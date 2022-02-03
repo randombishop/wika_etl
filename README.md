@@ -77,6 +77,8 @@ Open your browser and head to `http://localhost:3000`.
 
 You should see a GraphQL playground and can try to query with the following code to check if a block was indexed in the database.
 
+Note that GraphQL is only connected to the data in Postgres.
+
 ````graphql
 {
   query{
@@ -91,19 +93,37 @@ You should see a GraphQL playground and can try to query with the following code
 
 
 ## Postgres, Neo4j and Elastic Search databases
-If your docker-compose is normally up and running, you should be able to access the 3 databases:
+If your docker-compose is normally up and running, you should be able to access the 3 databases directly:
 
 ### Postgres:
 Connect to the host `localhost:5433` using your favorite Postgres client.
+
 (User: postgres, password: postgres, defined in docker-compose file.)
+
+The following tables should be available:
+
+* table1
+
 
 ### Neo4J:
 Connect to `http://localhost:7474/browser/` in your browser.
+
 (User: neo4j, password: 1234, defined in docker-compose file.)
+
+The following nodes and edges should be available:
+
+* table1
+
+
 
 ### Elastic Search (Kibana frontend):
 Connect to `http://localhost:5601` in your browser.
+
 (User: elastic, password: abcd, defined in docker-compose file.)
+
+The following documents should be available:
+
+* table1
 
 
 
