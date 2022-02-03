@@ -1,102 +1,164 @@
-# SubQuery - Starter Package
+# Wika Network ETL
 
+The Wika Network ETL repo provides an easy way to index the Wika blockchain data into 3 databases:
+* As tables: Postgres.
+* As a graph: Neo4J.
+* As documents: Elastic Search.
 
-The Starter Package is an example that you can use as a starting point for developing your SubQuery project.
-A SubQuery package defines which data The SubQuery will index from the Substrate blockchain, and how it will store it. 
+It relies on [Subquery](https://subquery.network/) and was developed by starting from the default Subquery scaffolding.
 
-## Preparation
-
-#### Environment
-
-- [Typescript](https://www.typescriptlang.org/) are required to compile project and define types.  
-
-- Both SubQuery CLI and generated Project have dependencies and require [Node](https://nodejs.org/en/).
-     
-
-#### Install the SubQuery CLI
-
-Install SubQuery CLI globally on your terminal by using NPM:
-
-```
-npm install -g @subql/cli
-```
-
-Run help to see available commands and usage provide by CLI
-```
-subql help
-```
-
-## Initialize the starter package
-
-Inside the directory in which you want to create the SubQuery project, simply replace `project-name` with your project name and run the command:
-```
-subql init --starter project-name
-```
-Then you should see a folder with your project name has been created inside the directory, you can use this as the start point of your project. And the files should be identical as in the [Directory Structure](https://doc.subquery.network/directory_structure.html).
-
-Last, under the project directory, run following command to install all the dependency.
-```
-yarn install
-```
-
-
-## Configure your project
-
-In the starter package, we have provided a simple example of project configuration. You will be mainly working on the following files:
+This repo follows the same structure provided by the standard subquery starter code, with the main components being:
 
 - The Manifest in `project.yaml`
 - The GraphQL Schema in `schema.graphql`
 - The Mapping functions in `src/mappings/` directory
+- Plugin functions in `src/plugins` (The subquery engine syncs the blockchain data with Postgres database by default, so we added Neo4j and Elastic Search as plugins that can be enabled by configuration.)
 
-For more information on how to write the SubQuery, 
-check out our doc section on [Define the SubQuery](https://doc.subquery.network/define_a_subquery.html) 
+More details on how the starter code was modified can be found in [template_change_log.md](template_change_log.md). 
 
-#### Code generation
+For a high level overview, check out our [medium article](medium.com/) about this project.
 
-In order to index your SubQuery project, it is mandatory to build your project first.
-Run this command under the project directory.
 
-````
+## Building and running the ETL 
+
+### 0. Prerequisites
+
+- Node Js.  
+- Yarn.
+- Docker and docker-compose.
+- git clone this repo and enter the `subql_wika` directory.     
+
+### 1. Install the dependencies
+```
+yarn install
+```
+
+### 2. Generate model classes
+The schema of the data managed by Subquery is defined in `schema.graphql`
+This step converts the entities defined in that file into JS classes and writes them into `src/types/`.
+Note that these auto-generated files are not to be modified manually.
+```
 yarn codegen
-````
+```
 
-## Build the project
-
-In order to deploy your SubQuery project to our hosted service, it is mandatory to pack your configuration before upload.
-Run pack command from root directory of your project will automatically generate a `your-project-name.tgz` file.
-
+### 3. Compile TypeScript code into JS
+This step compiles TS code in `src/` into JS code located in `dist` folder.
 ```
 yarn build
 ```
 
-## Indexing and Query
-
-#### Run required systems in docker
-
-
-Under the project directory run following command:
-
+### 4. Modify `project.yaml` file
+Make sure to point to a Wika Blockchain node.
 ```
-docker-compose pull && docker-compose up
+network:
+  endpoint: wss://testnode3.wika.network:443
+  genesisHash: '0x59732b25bb635769e91a71f818c6d845b9bdcd371bb93d1512b1eacedb53d4be'
 ```
-#### Query the project
+
+And that you start the ETL at a recent block number.
+(For example `testnode3.wika.network:443` only archives the last 100 blocks)
+```
+startBlock: 12345678
+```
+
+### 5. Start the Data indexing
+(Do a `docker-compose pull` the first time)
+And let's Go!
+```
+docker-compose up
+```
+
+
+
+
+## Using the graphql service
 
 Open your browser and head to `http://localhost:3000`.
 
-Finally, you should see a GraphQL playground is showing in the explorer and the schemas that ready to query.
-
-For the `subql-starter` project, you can try to query with the following code to get a taste of how it works.
+You should see a GraphQL playground and can try to query with the following code to check if a block was indexed in the database.
 
 ````graphql
 {
   query{
-    starterEntities(first:10){
-      nodes{
-        field1,
-        field2,
-        field3
-      }
+    blockInfo(id:"0x390ad69c942407ca1b4fea0a1b95691ced4b0021d9d8de61074226fee84563c8"){
+      id,
+      blockNum,
+      syncDate
     }
   }
 }
 ````
+
+
+## Postgres, Neo4j and Elastic Search databases
+If your docker-compose is normally up and running, you should be able to access the 3 databases:
+
+### Postgres:
+```localhost:5433```
+User: postgres, password: postgres, defined in docker-compose file.
+
+### Neo4J:
+```http://localhost:7474/browser/```
+User: neo4j, password: 1234, defined in docker-compose file.
+
+### Elastic Search (Kibana frontend):
+```http://localhost:5601```
+User: neo4j, password: 1234, defined in docker-compose file.
+
+
+
+## Configuration options
+
+### Configuring the Neo4J Sync
+The Neo4j database sync can be configured using the following env vars:
+```
+NEO4J_ENABLE: 1
+NEO4J_HOST: bolt://your_neo4j_host:port
+NEO4J_USER: bob
+NEO4J_PASS: xxx
+```
+You can set the `NEO_4J_ENABLE` to 0 in docker-compose file to disable this part. 
+
+
+### Configuring the Elastic Search Sync
+The Elastic Search database sync can be configured using the following env vars:
+```
+ES_ENABLE: 1
+ES_HOST: http://your_es_host:port
+ES_USER: alice
+ES_PASS: xxx
+```
+You can set the `ES_ENABLE` to 0 in docker-compose file to disable this part. 
+
+
+### Configuring the email alerts
+The ETL can send email alerts upon error when enabled, and is configured using the following env vars:
+```
+EMAIL_ALERT_ENABLE: 0
+EMAIL_ALERT_HOST: http://your_email_rest_api:port
+EMAIL_ALERT_FROM: etl@wika.network
+EMAIL_ALERT_TO: admin@wika.network
+EMAIL_ALERT_KEY: api_key_goes_here
+```
+To enable, set `EMAIL_ALERT_ENABLE` to 1 and customize `src/plugins/emails.ts` to fit the format of your email api.
+
+
+
+## Running the test suite
+
+With the docker images up and running, connect to the `subquery-node` service in another terminal:
+```
+docker exec -it subql_wika_subquery-node_1 sh
+```
+
+Then head into the app folder and run `yarn test`
+```
+cd app
+yarn test
+```
+
+
+
+
+
+

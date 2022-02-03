@@ -53,13 +53,13 @@ services:
       NEO4J_PASS: 1234
       ES_ENABLE: 1
       ES_HOST: http://es:9200
-      ES_USER: es
-      ES_PASS: es
+      ES_USER: elastic
+      ES_PASS: abcd
       EMAIL_ALERT_ENABLE: 0
-      EMAIL_ALERT_HOST: emailapi.com
-      EMAIL_ALERT_FROM: test
-      EMAIL_ALERT_TO: test
-      EMAIL_ALERT_KEY: abcd
+      EMAIL_ALERT_HOST: host
+      EMAIL_ALERT_FROM: from
+      EMAIL_ALERT_TO: to
+      EMAIL_ALERT_KEY: api_key
     volumes:
       - ./:/app
       - ./sandbox.override.js:/usr/local/lib/node_modules/@subql/node/dist/indexer/sandbox.service.js
@@ -101,6 +101,9 @@ services:
       - discovery.type=single-node
       - bootstrap.memory_lock=true
       - logger.level=WARN
+      - xpack.security.enabled=true
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=abcd
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
@@ -119,3 +122,5 @@ services:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml
     environment:
       - ELASTICSEARCH_URL=http://es:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=abcd
