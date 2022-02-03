@@ -94,16 +94,16 @@ You should see a GraphQL playground and can try to query with the following code
 If your docker-compose is normally up and running, you should be able to access the 3 databases:
 
 ### Postgres:
-```localhost:5433```
-User: postgres, password: postgres, defined in docker-compose file.
+Connect to the host `localhost:5433` using your favorite Postgres client.
+(User: postgres, password: postgres, defined in docker-compose file.)
 
 ### Neo4J:
-```http://localhost:7474/browser/```
-User: neo4j, password: 1234, defined in docker-compose file.
+Connect to `http://localhost:7474/browser/` in your browser.
+(User: neo4j, password: 1234, defined in docker-compose file.)
 
 ### Elastic Search (Kibana frontend):
-```http://localhost:5601```
-User: neo4j, password: 1234, defined in docker-compose file.
+Connect to `http://localhost:5601` in your browser.
+(User: elastic, password: abcd, defined in docker-compose file.)
 
 
 
