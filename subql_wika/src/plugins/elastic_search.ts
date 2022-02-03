@@ -7,11 +7,16 @@ export class PluginElasticSearch {
 
     private isEnabled: number;
     private host: string;
+    private auth: string;
 
     constructor() {
         this.isEnabled = parseInt(process.env.ES_ENABLE) ;
         if (this.isEnabled==1) {
             this.host = process.env.ES_HOST ;
+            const user = process.env.ES_USER ;
+            const password = process.env.ES_PASS ;
+            const buff = new Buffer(user+':'+password);
+            this.auth = 'Basic '+buff.toString('base64');
         }
     }
 
@@ -47,7 +52,7 @@ export class PluginElasticSearch {
         const rest_path = '/url/_doc/' + this.getUrlHash(url) ;
         const rest_config = {
             method: 'get',
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Authorization': this.auth, 'Content-Type': 'application/json'}
         }
         const doc = await this.callApiAndGetSource(rest_path, rest_config);
         return doc ;
@@ -58,7 +63,7 @@ export class PluginElasticSearch {
         const rest_config = {
         	method: 'post',
 	        body: JSON.stringify(data),
-	        headers: {'Content-Type': 'application/json'}
+	        headers: {'Authorization': this.auth, 'Content-Type': 'application/json'}
         }
         const result = await this.callApiAndGetResult(rest_path, rest_config);
         return result ;
@@ -68,7 +73,7 @@ export class PluginElasticSearch {
         const rest_path = '/url/_doc/' + this.getUrlHash(url) ;
         const rest_config = {
             method: 'delete',
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Authorization': this.auth, 'Content-Type': 'application/json'}
         }
         const result = await this.callApiAndGetResult(rest_path, rest_config);
         return result ;
