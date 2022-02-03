@@ -102,17 +102,22 @@ Connect to the host `localhost:5433` using your favorite Postgres client.
 
 The following tables should be available:
 
-* table1
-
+* `block_infos`: Block numbers and time of sync.
+* `like_events`: Log of LikeEvents (who liked which url, number of likes and when.)
+* `url_registered_events`: Log of UrlRegisteredEvents (who registered which url, when.)
+* `url_metadata`: Title, description, image and icon associated with the url.
 
 ### Neo4J:
 Connect to `http://localhost:7474/browser/` in your browser.
 
 (User: neo4j, password: 1234, defined in docker-compose file.)
 
-The following nodes and edges should be available:
+The following data should be available:
 
-* table1
+* Each user is represented by a node (User class.) and includes the total number of likes sent.
+* Each url is represented by a node (Url class.) and includes the total number of likes received.
+* Likes are represented by the relationship LIKES, storing the number of likes as well.
+* Ownerships are represented by the relationship OWNS.
 
 
 
@@ -121,9 +126,8 @@ Connect to `http://localhost:5601` in your browser.
 
 (User: elastic, password: abcd, defined in docker-compose file.)
 
-The following documents should be available:
+ES should have documents in index `Url`, with `title`, `description`, `image` and `icon` fields.
 
-* table1
 
 
 
