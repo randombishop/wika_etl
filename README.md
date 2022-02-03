@@ -77,6 +77,8 @@ Open your browser and head to `http://localhost:3000`.
 
 You should see a GraphQL playground and can try to query with the following code to check if a block was indexed in the database.
 
+Note that GraphQL is only connected to the data in Postgres.
+
 ````graphql
 {
   query{
@@ -91,19 +93,41 @@ You should see a GraphQL playground and can try to query with the following code
 
 
 ## Postgres, Neo4j and Elastic Search databases
-If your docker-compose is normally up and running, you should be able to access the 3 databases:
+If your docker-compose is normally up and running, you should be able to access the 3 databases directly:
 
 ### Postgres:
 Connect to the host `localhost:5433` using your favorite Postgres client.
+
 (User: postgres, password: postgres, defined in docker-compose file.)
+
+The following tables should be available:
+
+* `block_infos`: Block numbers and time of sync.
+* `like_events`: Log of LikeEvents (who liked which url, number of likes and when.)
+* `url_registered_events`: Log of UrlRegisteredEvents (who registered which url, when.)
+* `url_metadata`: Title, description, image and icon associated with the url.
 
 ### Neo4J:
 Connect to `http://localhost:7474/browser/` in your browser.
+
 (User: neo4j, password: 1234, defined in docker-compose file.)
+
+The following data should be available:
+
+* Each user is represented by a node (User class.) and includes the total number of likes sent.
+* Each url is represented by a node (Url class.) and includes the total number of likes received.
+* Likes are represented by the relationship LIKES, storing the number of likes as well.
+* Ownerships are represented by the relationship OWNS.
+
+
 
 ### Elastic Search (Kibana frontend):
 Connect to `http://localhost:5601` in your browser.
+
 (User: elastic, password: abcd, defined in docker-compose file.)
+
+ES should have documents in index `Url`, with `title`, `description`, `image` and `icon` fields.
+
 
 
 
@@ -159,6 +183,25 @@ yarn test
 
 
 
+## Logs and debugging
 
+The provided docker-compose file spins up 6 services:
+- postgres
+- neo4j
+- es (elastic search)
+- kibana (elastic search frontend)
+- graphql-engine
+- subquery-node
+
+The first 5 are images used as-is and should not require any debugging.
+
+You can focus on `subquery-node` logs by running `docker logs subql_wika_subquery-node_1 -f` on a separate terminal.
+
+Also, note that the ETL logic runs in a sandbox and `console.log` doesn't work in that context.
+
+You must use the `logger` global object (see examples in `mappingHandlers.ts`)
+
+Log level can be set in the `subquery-node` section of docker-compose.yml at:
+```--log-level=info```
 
 
