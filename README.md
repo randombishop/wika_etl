@@ -183,6 +183,25 @@ yarn test
 
 
 
+## Logs and debugging
 
+The provided docker-compose file spins up 6 services:
+- postgres
+- neo4j
+- es (elastic search)
+- kibana (elastic search frontend)
+- graphql-engine
+- subquery-node
+
+The first 5 are images used as-is and should not require any debugging.
+
+You can focus on `subquery-node` logs by running `docker logs subql_wika_subquery-node_1 -f` on a separate terminal.
+
+Also, note that the ETL logic runs in a sandbox and `console.log` doesn't work in that context.
+
+You must use the `logger` global object (see examples in `mappingHandlers.ts`)
+
+Log level can be set in the `subquery-node` section of docker-compose.yml at:
+```--log-level=info```
 
 
