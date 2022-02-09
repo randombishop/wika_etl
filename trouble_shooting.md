@@ -11,6 +11,6 @@ If that is the case, you might not be alocating enough resources to your docker 
 
 To change this in docker desktop, navigate to the settings icon and the click resrouces. There you will see a menu that looks like below image. Increase the CPU and Memory until your image runs without exiting. The below settings were sufficient in testing on a macbook air m1.
 
-<img src="./assets/img/docker_resources.png" width="300">
+<img src="./assets/img/docker_resources.png" width="500">
 
 
