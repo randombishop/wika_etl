@@ -1,0 +1,2 @@
+CREATE CONSTRAINT unique_url FOR (x:Url) REQUIRE x.url IS UNIQUE ;
+CREATE CONSTRAINT unique_user FOR (x:User) REQUIRE x.address IS UNIQUE ;

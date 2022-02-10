@@ -142,6 +142,8 @@ NEO4J_USER: bob
 NEO4J_PASS: xxx
 ```
 You can set the `NEO_4J_ENABLE` to 0 in docker-compose file to disable this part. 
+Also, the first time you start your neo4j instance, you will need to add the indices by using the script
+in `neo4j_init.cql`
 
 
 ### Configuring the Elastic Search Sync

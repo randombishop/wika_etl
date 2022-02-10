@@ -12,9 +12,9 @@ services:
       PGPORT: 5433
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   neo4j:
     image: neo4j
@@ -25,11 +25,14 @@ services:
       - .data/neo4j:/var/lib/neo4j/data
     environment:
       NEO4J_AUTH: neo4j/1234
+      NEO4J_dbms_memory_heap_initial__size: 512m
+      NEO4J_dbms_memory_heap_max__size: 1024m
+      NEO4J_dbms_memory_pagecache_size: 1024m
     healthcheck:
       test: ["CMD-SHELL", "neo4j status | grep running"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
 
 
 
@@ -69,7 +72,7 @@ services:
       - --log-level=info
     healthcheck:
       test: ["CMD", "curl", "-f", "http://subquery-node:3000/ready"]
-      interval: 3s
+      interval: 10s
       timeout: 5s
       retries: 10
 
