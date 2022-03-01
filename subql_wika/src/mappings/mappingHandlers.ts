@@ -57,21 +57,7 @@ function newUrlRegisteredEvent(eventId, blockNum, url, owner) {
     return record ;
 }
 
-
-
-// Event Handlers
-// ---------------------
-
-async function handleLikeEvent(event) {
-    const eventData = event.event.data ;
-    const blockId = event.extrinsic.block.block.header.hash.toString() ;
-    const blockNum = event.extrinsic.block.block.header.number.toNumber();
-    const eventId = blockNum + '/' + event.idx ;
-    const user = eventData[0].toString() ;
-    const url = eventData[1].toHuman().toString() ;
-    const numLikes = Number(eventData[2]) ;
-
-    // Metadata
+async function updateMetadata(url) {
     const metadata = await fetchMetadata(url) ;
     if (metadata) {
         let metadataRecord = newMetadataRecord(url, metadata) ;
@@ -81,6 +67,30 @@ async function handleLikeEvent(event) {
             await elastic.postUrl(url, metadata) ;
         }
     }
+}
+
+function logError(e) {
+    if (emails.isEnabled()) {
+        emails.sendError(e.toString()) ;
+    }
+    logger.error(e);
+}
+
+
+// Event Handlers
+// ---------------------
+
+export async function handleLikeEvent(event) {
+    const eventData = event.event.data ;
+    const blockId = event.extrinsic.block.block.header.hash.toString() ;
+    const blockNum = event.extrinsic.block.block.header.number.toNumber();
+    const eventId = blockNum + '/' + event.idx ;
+    const user = eventData[0].toString() ;
+    const url = eventData[1].toHuman().toString() ;
+    const numLikes = Number(eventData[2]) ;
+
+    // Update metadata
+    updateMetadata(url) ;
 
     // Main record
     let record = newLikeEvent(eventId, blockNum, url, user, numLikes);
@@ -93,7 +103,7 @@ async function handleLikeEvent(event) {
     }
 }
 
-async function handleUrlRegisteredEvent(event) {
+export async function handleUrlRegisteredEvent(event) {
     const eventData = event.event.data ;
     const user = eventData[0].toString() ;
     const url = eventData[1].toHuman().toString() ;
@@ -112,16 +122,8 @@ async function handleUrlRegisteredEvent(event) {
         }
     }
 
-    // Metadata
-    const metadata = await fetchMetadata(url) ;
-    if (metadata) {
-        let metadataRecord = newMetadataRecord(url, metadata) ;
-        await metadataRecord.save();
-        if (elastic.isSyncEnabled()) {
-            logger.info('elastic search is enabled')
-            await elastic.postUrl(url, metadata) ;
-        }
-    }
+    // Update metadata
+    updateMetadata(url) ;
 
     // Main record
     const record = newUrlRegisteredEvent(eventId, blockNum, url, user) ;
@@ -152,10 +154,7 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
         const record = newBlockInfo(blockId, blockNum);
         await record.save();
     } catch (e) {
-        if (emails.isEnabled()) {
-            emails.sendError(e.toString()) ;
-        }
-        logger.error(e);
+        logError(e) ;
     }
 }
 
@@ -170,10 +169,7 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
             handleUrlRegisteredEvent(event) ;
         }
     } catch (e) {
-        if (emails.isEnabled()) {
-            emails.sendError(e.toString()) ;
-        }
-        logger.error(e);
+        logError(e) ;
     }
 }
 
