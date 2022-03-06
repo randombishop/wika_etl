@@ -23,4 +23,4 @@ async function fetchMetadata(url: string): Promise<Meta> {
 }
 
 
-export {fetchMetadata, Meta}
+export {fetchMetadata}

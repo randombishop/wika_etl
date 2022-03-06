@@ -1,3 +1,8 @@
+/**
+* Simple Data Object representing website metadata
+* @remarks
+* Used by elastic search and page_metadata plugins
+*/
 class Meta {
     public url: string;
     public title: string;

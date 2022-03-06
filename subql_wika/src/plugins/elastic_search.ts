@@ -97,7 +97,7 @@ export class PluginElasticSearch {
     * @remarks
     * The document id will be the MD5 hash of the url.
     * @param url - Website URL
-    * @param data - Javascript dictionary that will be stored as a document
+    * @param data - Meta object that will be stored as a document
     * @returns document as dictionary if found, null otherwise.
     */
     async postUrl(url: string, data: Meta) {
