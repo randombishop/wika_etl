@@ -20,6 +20,8 @@ export async function handleBlock(block: SubstrateBlock): Promise<void> {
         const postgres = eventHandlers.getPluginPostgres() ;
         if (postgres.isSyncEnabled()) {
             postgres.newBlockInfo(blockId, blockNum);
+        } else {
+            logger.warn('Postgres disabled') ;
         }
     } catch (e) {
         eventHandlers.logError(e) ;

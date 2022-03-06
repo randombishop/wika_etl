@@ -28,9 +28,9 @@ export class EventHandlers {
         this.emails = new PluginEmails() ;
         // If there's a global logger variable, use it,
         // otherwise, forward to console
-        if (logger) {
+        try {
             this.log = logger ;
-        } else {
+        } catch (e) {
             this.log = console ;
         }
     }
@@ -51,9 +51,13 @@ export class EventHandlers {
         if (metadata) {
             if (this.postgres.isSyncEnabled()) {
                 this.postgres.newMetadataRecord(url, metadata) ;
+            } else {
+                this.log.warn('postgres is disabled')
             }
             if (this.elastic.isSyncEnabled()) {
                 await this.elastic.postUrl(url, metadata) ;
+            } else {
+                this.log.warn('elastic is disabled')
             }
         }
     }
@@ -74,11 +78,15 @@ export class EventHandlers {
         // Main record
         if (this.postgres.isSyncEnabled()) {
             this.postgres.newLikeEvent(eventId, blockNum, url, user, numLikes);
+        } else {
+            this.log.warn('postgres is disabled') ;
         }
 
         // Neo4J sync
         if (this.neo4j.isSyncEnabled()) {
             await this.neo4j.handleLikeEvent(user, url, numLikes) ;
+        } else {
+            this.log.warn('neo4j is disabled') ;
         }
     }
 
@@ -97,6 +105,8 @@ export class EventHandlers {
             this.postgres.deactivatePreviousUrlRegisteredEvents(user) ;
             // Save active record
             this.postgres.newUrlRegisteredEvent(eventId, blockNum, url, user) ;
+        } else {
+            this.log.warn('postgres is disabled') ;
         }
 
         // Update metadata
@@ -105,6 +115,8 @@ export class EventHandlers {
         // Neo4J sync
         if (this.neo4j.isSyncEnabled()) {
             await this.neo4j.handleUrlRegisteredEvent(user, url) ;
+        } else {
+            this.log.warn('neo4j is disabled') ;
         }
     }
 

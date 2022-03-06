@@ -11,16 +11,21 @@ const testUser = 'aaaaaaaaaaaaaaa' ;
 const testUrl = 'https://www.wika.network/' ;
 
 
-// Mocking a Like Event as it would come from Polkadot API
+// Mocking a Registered Event as it would come from Polkadot API
 const URL_REGISTERED_EVENT = {
     event: {
         data:[
-            {toString: () => {return testUser} },
+            {
+                toString: () => {return testUser}
+            },
             {
                 toString: () => {return  testUser} ,
-                toHuman: () => {toString: () => {return testUrl} }
+                toHuman: () => {return {toString: () => {return testUrl} }}
             },
-            1
+            {
+                toString: () => {return  "1"} ,
+                toNumber: () => {return 1}
+            }
         ]
     },
     extrinsic: {

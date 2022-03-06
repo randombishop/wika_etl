@@ -8,7 +8,6 @@ const testDataArray = [
         meta: {
             title: 'Home page | Wika Network',
             description: 'Blockchain to manage URL Ownership registry and reward authors with Wika tokens.<head />',
-            image: undefined,
             icon: '/img/favicon.ico'
         }
     },
@@ -17,7 +16,6 @@ const testDataArray = [
         meta: {
             title: 'GitHub - randombishop/wika_etl',
             description: 'Contribute to randombishop/wika_etl development by creating an account on GitHub.',
-            image: 'https://opengraph.githubassets.com/1eb16d9d35b2a179a6b0c41c4fc97356852d3457a40196d1bf73dabc1717d5d8/randombishop/wika_etl',
             icon: 'https://github.githubassets.com/favicons/favicon.svg'
         }
     }
@@ -33,7 +31,6 @@ describe('fetchMetadata', function () {
                 //console.log('meta', meta) ;
                 expect(meta.title).to.equal(testData.meta.title) ;
                 expect(meta.description).to.equal(testData.meta.description) ;
-                expect(meta.image).to.equal(testData.meta.image) ;
                 expect(meta.icon).to.equal(testData.meta.icon) ;
             });
         };

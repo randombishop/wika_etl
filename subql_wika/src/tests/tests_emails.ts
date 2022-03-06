@@ -8,8 +8,12 @@ const testMessage = 'Integration test message\nPlease ignore...' ;
 
 describe('PluginEmails', function () {
 
-    it('should send a test email', async function () {
-        await emails.sendError(testMessage) ;
+    it('should send a test email if enabled', async function () {
+        if (emails.isEnabled()) {
+            await emails.sendError(testMessage) ;
+        } else {
+            console.warn('PluginEmails is disabled') ;
+        }
     });
 
 });
