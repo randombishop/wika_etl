@@ -27,6 +27,10 @@ export class EventHandlers {
     // Logger
     private log ;
 
+    /**
+    * Constructor relies on env vars
+    * for the list of env vars, see the docs of each Plugin, or the docker-compose file
+    */
     constructor() {
         // Instantiate data plugins
         this.postgres = new PluginPostgres() ;
@@ -42,6 +46,9 @@ export class EventHandlers {
         }
     }
 
+    /**
+    * Handle to the Postgres plugin
+    */
     getPluginPostgres() {
         return this.postgres ;
     }
@@ -83,7 +90,7 @@ export class EventHandlers {
     * Processes a LikeEvent
     * Updates the metadata in Postgres and Elastic Search
     * Records the event in Postgres
-    * Updates the LIKE relationshop in Neo4J
+    * Creates or updates the LIKE relationship in Neo4J
     * @param event - Polkadot API Event, containing user, url and numLikes in its data field
     */
     async handleLikeEvent(event) {
@@ -118,7 +125,7 @@ export class EventHandlers {
     * Processes a UrlRegisteredEvent
     * Updates the metadata in Postgres and Elastic Search
     * Records the event in Postgres
-    * Updates the OWNS relationship in Neo4J
+    * Creates or updates the OWNS relationship in Neo4J
     * @param event - Polkadot API Event, containing user and url in its data field
     */
     async handleUrlRegisteredEvent(event) {
