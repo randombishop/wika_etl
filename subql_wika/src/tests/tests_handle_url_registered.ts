@@ -12,13 +12,13 @@ const testUrl = 'https://www.wika.network/' ;
 
 
 // Mocking a Like Event as it would come from Polkadot API
-const LIKE_EVENT = {
+const URL_REGISTERED_EVENT = {
     event: {
         data:[
             {toString: () => {return testUser} },
             {
                 toString: () => {return  testUser} ,
-                toHuman: () => {return {toString: () => {return testUrl}}}
+                toHuman: () => {toString: () => {return testUrl} }
             },
             1
         ]
@@ -28,9 +28,7 @@ const LIKE_EVENT = {
             block:{
                 header: {
                     hash: {
-                        toString: () => {return "test_hash_id"}
-                    },
-                    number: {
+                        toString: () => {return "test_hash_id"} ,
                         toNumber: () => {return 123}
                     }
                 }
@@ -41,14 +39,13 @@ const LIKE_EVENT = {
 
 
 
-describe('handleLikeEvent', function () {
+describe('handleUrlRegisteredEvent', function () {
 
-    it('should process the like event with no errors and increment the number of likes', async function () {
-        const likesBefore = await neo4j.fetchLIKES(testUser, testUrl) ;
-        const numLikesBefore = likesBefore!=null?likesBefore.numLikes:0 ;
-        await eventHandlers.handleLikeEvent(LIKE_EVENT) ;
-        const likesAfter = await neo4j.fetchLIKES(testUser, testUrl) ;
-        expect(likesAfter.numLikes).to.equal(numLikesBefore+1);
-    });
+    it('should process the event with no errors and save the ownership', async function () {
+        await eventHandlers.handleUrlRegisteredEvent(URL_REGISTERED_EVENT) ;
+        const owns = await neo4j.fetchOWNS(testUser, testUrl) ;
+        expect(owns).to.be.not.null ;
+    }) ;
 
 });
+
