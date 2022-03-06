@@ -11,6 +11,9 @@ export class PluginPostgres {
 
     private isEnabled: number;
 
+    /**
+    * Constructor relies on env var `DB_ENABLE`
+    */
     constructor() {
         this.isEnabled = parseInt(process.env.DB_ENABLE) ;
     }

@@ -3,6 +3,13 @@ import fetch from 'node-fetch';
 import Meta from './meta' ;
 
 
+/**
+* Uses the `node-fetch` module to pull a webpage html code
+* and extracts its metadata
+* @remarks
+* Silently returns null if the fetch or parsing fails.
+* @returns webpage metadata as a Meta object.
+*/
 async function fetchMetadata(url: string): Promise<Meta> {
     try {
         const response = await fetch(url);
