@@ -8,7 +8,14 @@ import {PluginEmails} from '../plugins/emails' ;
 
 
 
-
+/**
+* Holds instances of the data access plugins
+* and the ETL logic for the events emitted by the Wika blockchain:
+* LikeEvent
+* UrlRegisteredEvent
+* @remarks
+* Logging is directed to the global logger if available, otherwise to console.
+*/
 export class EventHandlers {
 
     // Data Plugins
@@ -39,6 +46,11 @@ export class EventHandlers {
         return this.postgres ;
     }
 
+    /**
+    * Sends an email if EmailsPlugin is enabled
+    * Plus, logs the error
+    * @param e - The error to report
+    */
     logError(e) {
         if (this.emails.isEnabled()) {
             this.emails.sendError(e.toString()) ;
@@ -46,6 +58,11 @@ export class EventHandlers {
         this.log.error(e);
     }
 
+    /**
+    * Fetches a webpage and saves the metadata to Postgres and Elastic Search
+    * (when plugins are enabled)
+    * @param url - The url string
+    */
     async updateMetadata(url) {
         const metadata = await fetchMetadata(url) ;
         if (metadata) {
@@ -62,6 +79,13 @@ export class EventHandlers {
         }
     }
 
+    /**
+    * Processes a LikeEvent
+    * Updates the metadata in Postgres and Elastic Search
+    * Records the event in Postgres
+    * Updates the LIKE relationshop in Neo4J
+    * @param event - Polkadot API Event, containing user, url and numLikes in its data field
+    */
     async handleLikeEvent(event) {
         const eventData = event.event.data ;
         const blockId = event.extrinsic.block.block.header.hash.toString() ;
@@ -90,6 +114,13 @@ export class EventHandlers {
         }
     }
 
+    /**
+    * Processes a UrlRegisteredEvent
+    * Updates the metadata in Postgres and Elastic Search
+    * Records the event in Postgres
+    * Updates the OWNS relationship in Neo4J
+    * @param event - Polkadot API Event, containing user and url in its data field
+    */
     async handleUrlRegisteredEvent(event) {
         const eventData = event.event.data ;
         const user = eventData[0].toString() ;
@@ -102,7 +133,7 @@ export class EventHandlers {
         // Postgres records
         if (this.postgres.isSyncEnabled()) {
             // Deactivate previous records
-            this.postgres.deactivatePreviousUrlRegisteredEvents(user) ;
+            this.postgres.deactivatePreviousUrlRegisteredEvents(url) ;
             // Save active record
             this.postgres.newUrlRegisteredEvent(eventId, blockNum, url, user) ;
         } else {
