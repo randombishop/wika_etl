@@ -20,3 +20,26 @@ To change this in docker desktop, navigate to the settings icon and the click re
 2. delete the `.data/postgres` folder
 3. reset the `startBlock` in the `project.yml` file to a recent a block number
 4. `docker-compose up` again
+
+## graphql-engine Container is unhealthy
+
+If you encounter this error:
+
+```bash
+ERROR: for graphql-engine  Container "824d8fc05142" is unhealthy.
+```
+
+You can fix it by:
+
+1. shutting down the docker infrastructure & clean up
+```bash
+$ docker rm 824d8fc05142 # replace with the correct container id
+$ docker-compose down
+```
+
+2. update the `startBlock` property to the recent block height
+
+3. start the docker infrastructure again
+```bash
+$ docker-compose up
+```

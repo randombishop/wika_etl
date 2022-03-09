@@ -3,7 +3,7 @@
 5432 -> 5432
 
 # Configured project.yaml
-- Set Wika Test Net endpoing and genesis hash
+- Set Wika Test Net endpoint and genesis hash
 - Add environment variable in subquery-node docker-compose to bypass https certificate check:
   ```NODE_TLS_REJECT_UNAUTHORIZED: 0```
 
