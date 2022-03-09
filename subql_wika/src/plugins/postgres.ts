@@ -108,7 +108,7 @@ export class PluginPostgres {
    */
   async deactivatePreviousUrlRegisteredEvents(url) {
     const previousRecords = await UrlRegisteredEvent.getByUrl(url);
-    if (previousRecords != null) {
+    if (previousRecords) {
       for (let i = 0; i < previousRecords.length; i++) {
         const previousRecord = previousRecords[i];
         previousRecord.active = false;

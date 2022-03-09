@@ -91,23 +91,14 @@ export class EventHandlers {
     const user = eventData[0].toString();
     const url = eventData[1].toHuman().toString();
     const numLikes = Number(eventData[2]);
-    this.log.info(
-      "handleLikeEvent : " +
-        eventId +
-        " : " +
-        user +
-        " : " +
-        url +
-        " : " +
-        numLikes
-    );
+    this.log.info("handleLikeEvent : ${eventId} : ${user} : ${url}: ${numLikes}");
 
     // Update metadata
     this.updateMetadata(url);
 
     // Main record
     if (this.postgres.isSyncEnabled()) {
-      this.postgres.newLikeEvent(eventId, blockNum, url, user, numLikes);
+      await this.postgres.newLikeEvent(eventId, blockNum, url, user, numLikes);
     } else {
       this.log.warn("postgres is disabled");
     }
@@ -134,9 +125,7 @@ export class EventHandlers {
     const blockNum = eventData[2].toNumber();
     const urlHash = crypto.createHash("md5").update(url).digest("hex");
     const eventId = blockNum + "/" + urlHash;
-    this.log.info(
-      "handleUrlRegisteredEvent : " + eventId + " : " + user + " : " + url
-    );
+    this.log.info("handleUrlRegisteredEvent : ${eventId} : ${user} : ${url}");
 
     // Postgres records
     if (this.postgres.isSyncEnabled()) {
