@@ -1,8 +1,3 @@
-import {
-  SubstrateExtrinsic,
-  SubstrateEvent,
-  SubstrateBlock,
-} from "@subql/types";
 import { PluginPostgres } from "../plugins/postgres";
 import { PluginNeo4j } from "../plugins/neo4j";
 import { PluginElasticSearch } from "../plugins/elastic_search";
