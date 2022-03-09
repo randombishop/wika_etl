@@ -10,6 +10,7 @@ const testUrl = "https://www.wika.network/";
 
 // Mocking a Like Event as it would come from Polkadot API
 const LIKE_EVENT = {
+  idx: 5,
   event: {
     data: [
       {

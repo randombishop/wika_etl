@@ -92,7 +92,7 @@ export class EventHandlers {
     const url = eventData[1].toHuman().toString();
     const numLikes = Number(eventData[2]);
     this.log.info(
-      "handleLikeEvent : ${eventId} : ${user} : ${url}: ${numLikes}"
+      `handleLikeEvent : ${eventId} : ${user} : ${url}: ${numLikes}`
     );
 
     // Update metadata
@@ -127,14 +127,14 @@ export class EventHandlers {
     const blockNum = eventData[2].toNumber();
     const urlHash = crypto.createHash("md5").update(url).digest("hex");
     const eventId = blockNum + "/" + urlHash;
-    this.log.info("handleUrlRegisteredEvent : ${eventId} : ${user} : ${url}");
+    this.log.info(`handleUrlRegisteredEvent : ${eventId} : ${user} : ${url}`);
 
     // Postgres records
     if (this.postgres.isSyncEnabled()) {
       // Deactivate previous records
-      this.postgres.deactivatePreviousUrlRegisteredEvents(url);
+      await this.postgres.deactivatePreviousUrlRegisteredEvents(url);
       // Save active record
-      this.postgres.newUrlRegisteredEvent(eventId, blockNum, url, user);
+      await this.postgres.newUrlRegisteredEvent(eventId, blockNum, url, user);
     } else {
       this.log.warn("postgres is disabled");
     }
