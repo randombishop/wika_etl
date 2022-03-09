@@ -47,6 +47,7 @@ export async function handleEvent(event: SubstrateEvent): Promise<void> {
 
 // Subquery call handling function
 export async function handleCall(
+  /*eslint @typescript-eslint/no-unused-vars: "off"*/
   extrinsic: SubstrateExtrinsic
 ): Promise<void> {
   /*eslint @typescript-eslint/no-empty-function: "off"*/
