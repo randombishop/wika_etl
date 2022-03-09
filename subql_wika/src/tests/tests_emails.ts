@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { PluginEmails } from "../plugins/emails";
 
 const emails = new PluginEmails();

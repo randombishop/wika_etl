@@ -17,7 +17,7 @@ describe("PluginElasticSearch", function () {
   describe("URL CRUD", function () {
     describe("deleteUrl", function () {
       it("should delete a URL node if it exists", async function () {
-        const del = await es.deleteUrl(testUrl);
+        await es.deleteUrl(testUrl);
         const doc = await es.getUrl(testUrl);
         expect(doc).to.be.null;
       });

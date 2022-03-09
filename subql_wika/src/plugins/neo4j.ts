@@ -1,6 +1,5 @@
 import neo4j from "neo4j-driver";
 import Driver from "neo4j-driver/lib/driver.js";
-import Session from "neo4j-driver-core/lib/session.js";
 
 /**
  * CRUD (CREATE, READ, UPDATE, DELETE) functions

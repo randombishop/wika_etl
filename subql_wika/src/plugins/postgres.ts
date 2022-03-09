@@ -110,7 +110,7 @@ export class PluginPostgres {
     const previousRecords = await UrlRegisteredEvent.getByUrl(url);
     if (previousRecords != null) {
       for (let i = 0; i < previousRecords.length; i++) {
-        let previousRecord = previousRecords[i];
+        const previousRecord = previousRecords[i];
         previousRecord.active = false;
         await previousRecord.save();
       }

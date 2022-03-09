@@ -8,7 +8,7 @@
     "prepack": "rm -rf dist && npm build",
     "test": "mocha dist/tests --timeout 5000 --exit ",
     "codegen": "./node_modules/.bin/subql codegen",
-    "lint": "yarn run eslint ./src --ext .ts",
+    "lint": "yarn run eslint ./src --ext .ts --",
     "format": "prettier --write \"./src/**/*.ts\""
   },
   "homepage": "https://github.com/subquery/subql-starter",

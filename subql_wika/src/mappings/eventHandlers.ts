@@ -91,7 +91,6 @@ export class EventHandlers {
    */
   async handleLikeEvent(event) {
     const eventData = event.event.data;
-    const blockId = event.extrinsic.block.block.header.hash.toString();
     const blockNum = event.extrinsic.block.block.header.number.toNumber();
     const eventId = blockNum + "/" + event.idx;
     const user = eventData[0].toString();
