@@ -91,7 +91,9 @@ export class EventHandlers {
     const user = eventData[0].toString();
     const url = eventData[1].toHuman().toString();
     const numLikes = Number(eventData[2]);
-    this.log.info("handleLikeEvent : ${eventId} : ${user} : ${url}: ${numLikes}");
+    this.log.info(
+      "handleLikeEvent : ${eventId} : ${user} : ${url}: ${numLikes}"
+    );
 
     // Update metadata
     this.updateMetadata(url);
