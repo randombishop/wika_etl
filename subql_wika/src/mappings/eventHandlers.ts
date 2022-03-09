@@ -14,12 +14,6 @@ import { PluginEmails } from "../plugins/emails";
  * Logging is directed to the global logger if available, otherwise to console.
  */
 export class EventHandlers {
-  // Data Plugins
-  private postgres: PluginPostgres;
-  private neo4j: PluginNeo4j;
-  private elastic: PluginElasticSearch;
-  private emails: PluginEmails;
-
   // Logger
   private log;
 
@@ -27,12 +21,13 @@ export class EventHandlers {
    * Constructor relies on env vars
    * for the list of env vars, see the docs of each Plugin, or the docker-compose file
    */
-  constructor() {
-    // Instantiate data plugins
-    this.postgres = new PluginPostgres();
-    this.neo4j = new PluginNeo4j();
-    this.elastic = new PluginElasticSearch();
-    this.emails = new PluginEmails();
+  constructor(
+    // Data Plugins
+    private postgres: PluginPostgres = new PluginPostgres(),
+    private neo4j: PluginNeo4j = new PluginNeo4j(),
+    private elastic: PluginElasticSearch = new PluginElasticSearch(),
+    private emails: PluginEmails = new PluginEmails()
+  ) {
     // If there's a global logger variable, use it,
     // otherwise, forward to console
     try {
