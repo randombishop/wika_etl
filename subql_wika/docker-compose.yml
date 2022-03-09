@@ -45,6 +45,7 @@ services:
         condition: service_healthy
     environment:
       NODE_TLS_REJECT_UNAUTHORIZED: 0
+      DB_ENABLE: 1
       DB_DATABASE: postgres
       DB_HOST: postgres
       DB_PORT: 5433

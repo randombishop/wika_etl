@@ -133,6 +133,11 @@ ES should have documents in index `Url`, with `title`, `description`, `image` an
 
 ## Configuration options
 
+All configuration options are read from environment variables.
+For dockerized users, they are all defined in the docker-compose file.
+When not using docker, you can write a file to set the environment variables, or define them in .profile file.
+
+
 ### Configuring the Neo4J Sync
 The Neo4j database sync can be configured using the following env vars:
 ```
@@ -181,6 +186,19 @@ Then head into the app folder and run `yarn test`
 ```
 cd app
 yarn test
+```
+
+
+## Lint & Code Formatting
+
+To format the code using `prettier`:
+```
+yarn format
+```
+
+To run `eslint` recommendations
+```
+yarn lint
 ```
 
 
